@@ -38,6 +38,7 @@ class ToolingContext:
 	sdkmanager: pathlib.Path | None
 	avdmanager: pathlib.Path | None
 	gradle_wrapper: pathlib.Path | None
+	wrapper_version: str | None
 	compile_sdk: int | None
 	java_major: int
 
@@ -199,6 +200,25 @@ def candidate_java_homes(required_major: int) -> list[pathlib.Path]:
 	system_name = platform.system()
 
 	if system_name == "Darwin":
+		java_home_tool = pathlib.Path("/usr/libexec/java_home")
+		if java_home_tool.exists():
+			result = subprocess.run(
+				[str(java_home_tool), "-V"],
+				stdout=subprocess.PIPE,
+				stderr=subprocess.STDOUT,
+				text=True,
+				check=False,
+			)
+			for line in result.stdout.splitlines():
+				match = re.search(r"(/.*?/Contents/Home)\s*$", line)
+				if match:
+					paths.append(pathlib.Path(match.group(1)))
+
+		vm_root = pathlib.Path("/Library/Java/JavaVirtualMachines")
+		if vm_root.exists():
+			for child in sorted(vm_root.glob("*/Contents/Home")):
+				paths.append(child)
+
 		vm_root = home / "Library" / "Java" / "JavaVirtualMachines"
 		if vm_root.exists():
 			for child in sorted(vm_root.glob("*/Contents/Home")):
@@ -316,6 +336,26 @@ def gradle_supported_java_max(version: str | None) -> int | None:
 	return None
 
 
+def gradle_required_java_min(version: str | None) -> int | None:
+	parsed = parse_gradle_version(version)
+	if not parsed:
+		return None
+	if parsed >= (8, 0):
+		return 17
+	return 8
+
+
+def agp_required_java_min(version: str | None) -> int | None:
+	parsed = parse_gradle_version(version)
+	if not parsed:
+		return None
+	if parsed >= (8, 0):
+		return 17
+	if parsed >= (7, 0):
+		return 11
+	return 8
+
+
 def parse_build_metadata(repo_root: pathlib.Path | None) -> BuildMetadata:
 	metadata = BuildMetadata()
 	if not repo_root:
@@ -348,6 +388,24 @@ def parse_build_metadata(repo_root: pathlib.Path | None) -> BuildMetadata:
 	return metadata
 
 
+def detect_agp_version(repo_root: pathlib.Path | None) -> str | None:
+	if not repo_root:
+		return None
+	patterns = [
+		re.compile(r"com\.android\.tools\.build:gradle:([0-9][0-9A-Za-z._-]*)"),
+		re.compile(r"id\s*[(' \t]*[\"']com\.android\.(?:application|library)[\"'][) \t]*version\s*[\"']([0-9][0-9A-Za-z._-]*)[\"']"),
+	]
+	for path in iter_build_files(repo_root):
+		text = file_text(path)
+		if not text:
+			continue
+		for pattern in patterns:
+			match = pattern.search(text)
+			if match:
+				return match.group(1)
+	return None
+
+
 def parse_settings_modules(repo_root: pathlib.Path | None) -> list[str]:
 	if not repo_root:
 		return []
@@ -359,15 +417,31 @@ def parse_settings_modules(repo_root: pathlib.Path | None) -> list[str]:
 			text = path.read_text(encoding="utf-8", errors="ignore")
 		except OSError:
 			continue
-		matches = re.findall(r"include\(([^)]+)\)", text)
 		modules: list[str] = []
-		for match in matches:
+		for match in re.findall(r"include\(([^)]+)\)", text):
 			for token in re.findall(r'"(:[^"]+)"|\'(:[^\']+)\'', match):
 				module = token[0] or token[1]
 				if module:
 					modules.append(module)
-		if modules:
-			return modules
+
+		for line in text.splitlines():
+			legacy = re.match(r"^\s*include\s+(.+)$", line)
+			if not legacy:
+				continue
+			for token in re.findall(r'"(:[^"]+)"|\'(:[^\']+)\'', legacy.group(1)):
+				module = token[0] or token[1]
+				if module:
+					modules.append(module)
+
+		seen: set[str] = set()
+		ordered: list[str] = []
+		for module in modules:
+			if module in seen:
+				continue
+			seen.add(module)
+			ordered.append(module)
+		if ordered:
+			return ordered
 	return []
 
 
@@ -440,9 +514,14 @@ def build_context(repo_root: pathlib.Path | None) -> ToolingContext:
 	sdk_root = find_sdk_root()
 	build_metadata = parse_build_metadata(repo_root)
 	wrapper_version = read_wrapper_distribution(repo_root)
+	agp_version = detect_agp_version(repo_root)
+	gradle_java_min = gradle_required_java_min(wrapper_version)
 	gradle_java_max = gradle_supported_java_max(wrapper_version)
+	agp_java_min = agp_required_java_min(agp_version)
 	compile_sdk = build_metadata.compile_sdk
-	java_major = build_metadata.java_major or min(17, gradle_java_max or 17)
+	java_major = max(build_metadata.java_major or 8, gradle_java_min or 8, agp_java_min or 8)
+	if gradle_java_max is not None:
+		java_major = min(java_major, gradle_java_max)
 	java_home = resolve_java_home(java_major, gradle_java_max)
 	return ToolingContext(
 		repo_root=repo_root,
@@ -453,6 +532,7 @@ def build_context(repo_root: pathlib.Path | None) -> ToolingContext:
 		sdkmanager=find_tool("sdkmanager", sdk_root, ("cmdline-tools", "latest", "bin", "sdkmanager")),
 		avdmanager=find_tool("avdmanager", sdk_root, ("cmdline-tools", "latest", "bin", "avdmanager")),
 		gradle_wrapper=find_gradle_wrapper(repo_root),
+		wrapper_version=wrapper_version,
 		compile_sdk=compile_sdk,
 		java_major=java_major,
 	)
@@ -483,13 +563,27 @@ def sdk_status(sdk_root: pathlib.Path | None) -> str:
 	return "missing"
 
 
-def gradle_probe_command(wrapper: pathlib.Path, task: str, java_home: pathlib.Path) -> list[str]:
+def gradle_supports_cli_flag(version: str | None, minimum: tuple[int, ...]) -> bool:
+	parsed = parse_gradle_version(version)
+	return bool(parsed and parsed >= minimum)
+
+
+def gradle_common_args(version: str | None, java_home: pathlib.Path, *, probe: bool) -> list[str]:
+	args = ["--console=plain"]
+	if gradle_supports_cli_flag(version, (4, 6)):
+		args.extend(["--warning-mode", "all"])
+	if not probe:
+		args.insert(0, "--no-daemon")
+		if gradle_supports_cli_flag(version, (6, 6)):
+			args.insert(1, "--no-configuration-cache")
+	args.append(f"-Dorg.gradle.java.home={java_home}")
+	return args
+
+
+def gradle_probe_command(wrapper: pathlib.Path, version: str | None, task: str, java_home: pathlib.Path) -> list[str]:
 	args = [
 		"-q",
-		"--console=plain",
-		"--warning-mode",
-		"all",
-		f"-Dorg.gradle.java.home={java_home}",
+		*gradle_common_args(version, java_home, probe=True),
 		task,
 	]
 	if IS_WINDOWS and wrapper.name.endswith(".bat"):
@@ -508,7 +602,7 @@ def gradle_probe_output(
 	if not wrapper or not java_home:
 		return None
 	result = run_capture(
-		gradle_probe_command(wrapper, task, java_home),
+		gradle_probe_command(wrapper, read_wrapper_distribution(repo_root), task, java_home),
 		cwd=repo_root,
 		check=False,
 	)
@@ -924,14 +1018,9 @@ def summarize_build_log(log_text: str) -> list[str]:
 	return summaries[:5]
 
 
-def gradle_command(wrapper: pathlib.Path, tasks: Sequence[str], java_home: pathlib.Path) -> list[str]:
+def gradle_command(wrapper: pathlib.Path, version: str | None, tasks: Sequence[str], java_home: pathlib.Path) -> list[str]:
 	args = [
-		"--no-daemon",
-		"--no-configuration-cache",
-		"--console=plain",
-		"--warning-mode",
-		"all",
-		f"-Dorg.gradle.java.home={java_home}",
+		*gradle_common_args(version, java_home, probe=False),
 		*tasks,
 	]
 	if IS_WINDOWS and wrapper.name.endswith(".bat"):
@@ -1200,7 +1289,7 @@ def do_doctor(args: argparse.Namespace, context: ToolingContext) -> None:
 		stdout(f"Modules: {', '.join(modules) if modules else 'unknown'}")
 		launchers = discover_launchers(context)
 		stdout(f"Launchers: {', '.join(launchers) if launchers else 'none found'}")
-		wrapper_version = read_wrapper_distribution(context.repo_root)
+		wrapper_version = context.wrapper_version
 		stdout(f"Gradle wrapper version: {wrapper_version or 'unknown'}")
 		gradle_java_max = gradle_supported_java_max(wrapper_version)
 		if gradle_java_max is not None:
@@ -1275,7 +1364,7 @@ def do_build_lint(args: argparse.Namespace, context: ToolingContext) -> None:
 	env["JAVA_HOME"] = str(context.java_home)
 	stdout(f"JAVA_HOME={context.java_home}")
 	stdout(f"Tasks={' '.join(tasks)}")
-	command = gradle_command(context.gradle_wrapper, tasks, context.java_home)
+	command = gradle_command(context.gradle_wrapper, context.wrapper_version, tasks, context.java_home)
 	if args.stream:
 		code = run_and_stream(command, cwd=context.repo_root, env=env, log_path=log_path)
 	else:
