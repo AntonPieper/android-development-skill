@@ -20,9 +20,9 @@ Symptoms:
 
 Actions:
 
-1. Install Command-Line Tools to <sdk>/cmdline-tools/latest/bin.
-2. Ensure ANDROID_SDK_ROOT points to the same SDK root.
-3. Re-run doctor.
+1. Install Command-Line Tools to `SDK_ROOT/cmdline-tools/latest/bin`.
+1. Ensure ANDROID_SDK_ROOT points to the same SDK root.
+1. Re-run doctor.
 
 ## Emulator console simulation fails
 
@@ -33,10 +33,10 @@ Symptoms:
 
 Actions:
 
-1. Confirm serial is emulator-<port>.
-2. Verify the emulator is running and booted.
-3. Confirm ~/.emulator_console_auth_token exists.
-4. Retry with explicit --port.
+1. Confirm serial is `emulator-PORT`.
+1. Verify the emulator is running and booted.
+1. Confirm `~/.emulator_console_auth_token` exists.
+1. Retry with explicit `--port`.
 
 ## No useful hierarchy for rendering surfaces
 

@@ -1,6 +1,8 @@
 ---
 name: android-development
-description: Cross-platform Android workflow for fresh clones, Gradle build and lint, emulator control, adb UI interaction, screenshots, and bounded diagnostics.
+description: Cross-platform Android workflow for fresh clones,
+  Gradle build and lint, emulator control, adb UI interaction,
+  screenshots, and bounded diagnostics.
 ---
 
 # Android Development
@@ -13,7 +15,8 @@ description: Cross-platform Android workflow for fresh clones, Gradle build and 
 
 ## Entry Point
 
-The authoritative, low-token way to discover commands and flags is the helper's built-in help:
+The authoritative, low-token way to discover commands and
+flags is the helper's built-in help:
 
 ```bash
 python /path/to/android-development/scripts/android_tooling.py --help
@@ -22,7 +25,8 @@ python /path/to/android-development/scripts/android_tooling.py --help
 Then start with:
 
 ```bash
-python /path/to/android-development/scripts/android_tooling.py doctor --repo /path/to/repo
+python /path/to/android-development/scripts/android_tooling.py \
+  doctor --repo /path/to/repo
 ```
 
 On Windows prefer `py -3` if `python` is unavailable.
@@ -38,9 +42,12 @@ References:
 
 1. Bootstrap with `doctor`.
 
-Use it first on new machines, fresh clones, and fresh agent sessions. Treat its output as authoritative for Java, SDK, Gradle wrapper, default tasks, modules, launchers, devices, and AVDs.
+Use it first on new machines, fresh clones, and fresh agent sessions.
+Treat its output as authoritative for Java, SDK, Gradle wrapper,
+default tasks, modules, launchers, devices, and AVDs.
 
-If `doctor` reports a tool as missing, fix that first instead of manually inspecting project files.
+If `doctor` reports a tool as missing, fix that first instead
+of manually inspecting project files.
 
 If `sdkmanager` is available, install the standard packages in one batch:
 
@@ -51,22 +58,27 @@ python /path/to/android-development/scripts/android_tooling.py doctor \
   --with-emulator
 ```
 
-2. Build and lint with `build-lint`.
+1. Build and lint with `build-lint`.
 
-Run builds through the helper so Java resolution and output handling stay consistent:
+Run builds through the helper so Java resolution and output
+handling stay consistent:
 
 ```bash
-python /path/to/android-development/scripts/android_tooling.py build-lint --repo /path/to/repo
+python /path/to/android-development/scripts/android_tooling.py \
+  build-lint --repo /path/to/repo
 ```
 
-Defaults: wrapper build, resolved `JAVA_HOME`, concise console output, detected app module, and printed report paths. Add `--stream` only when full Gradle output matters.
+Defaults: wrapper build, resolved `JAVA_HOME`, concise console
+output, detected app module, and printed report paths. Add
+`--stream` only when full Gradle output matters.
 
-3. Capture only what you need.
+1. Capture only what you need.
 
 Capture evidence with one command:
 
 ```bash
-python /path/to/android-development/scripts/android_tooling.py capture --serial <serial>
+python /path/to/android-development/scripts/android_tooling.py \
+  capture --serial <serial>
 ```
 
 Keep captures small unless you need more context:
@@ -85,12 +97,14 @@ python /path/to/android-development/scripts/android_tooling.py capture \
   --logcat-lines 200
 ```
 
-4. Batch UI actions with `ui-sequence`.
+1. Batch UI actions with `ui-sequence`.
 
-Prefer one batched command over many individual adb calls when approvals are involved:
+Prefer one batched command over many individual adb calls when
+approvals are involved:
 
 ```bash
-python /path/to/android-development/scripts/android_tooling.py ui-sequence --serial <serial> -- \
+python /path/to/android-development/scripts/android_tooling.py \
+  ui-sequence --serial <serial> -- \
   force-stop <package> \
   logcat-clear \
   start <package>/<launcher-activity> \
@@ -101,14 +115,16 @@ python /path/to/android-development/scripts/android_tooling.py ui-sequence --ser
   capture
 ```
 
-Prefer `tap-id`, `tap-text`, or `tap-desc` over raw coordinates when the hierarchy exposes a stable target.
+Prefer `tap-id`, `tap-text`, or `tap-desc` over raw
+coordinates when the hierarchy exposes a stable target.
 
-5. Control the emulator through the helper.
+1. Control the emulator through the helper.
 
 Start an existing AVD:
 
 ```bash
-python /path/to/android-development/scripts/android_tooling.py start-emulator \
+python /path/to/android-development/scripts/android_tooling.py \
+  start-emulator \
   --repo /path/to/repo \
   --avd <name> \
   --port 5556 \
@@ -120,7 +136,8 @@ python /path/to/android-development/scripts/android_tooling.py start-emulator \
 Use the built-in console client instead of a separate telnet binary:
 
 ```bash
-python /path/to/android-development/scripts/android_tooling.py emu-console \
+python /path/to/android-development/scripts/android_tooling.py \
+  emu-console \
   --serial emulator-5556 \
   --power-capacity 15 \
   --power-status discharging \
@@ -133,9 +150,13 @@ python /path/to/android-development/scripts/android_tooling.py emu-console \
 - Prefer one Python helper invocation over ad hoc shell command sequences.
 - Prefer helper defaults and small captures first, then expand only when needed.
 - Prefer wrapper builds over globally installed Gradle.
-- Prefer lint reports over console summaries when Android annotations, API levels, or resource types matter.
-- Prefer screenshot plus hierarchy plus bounded logcat together when UI behavior is unclear.
+- Prefer lint reports over console summaries when Android
+  annotations, API levels, or resource types matter.
+- Prefer screenshot plus hierarchy plus bounded logcat
+  together when UI behavior is unclear.
 
 ## Visual Debugging
 
-Use the hierarchy for structure and the screenshot for truth. Rendering, video, and camera surfaces often carry little or no useful XML.
+Use the hierarchy for structure and the screenshot for truth.
+Rendering, video, and camera surfaces often carry little or
+no useful XML.

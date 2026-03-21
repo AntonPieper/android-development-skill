@@ -1339,12 +1339,28 @@ def parse_args() -> argparse.Namespace:
 
 	parser = argparse.ArgumentParser(
 		description="Cross-platform Android repo helper for Codex skills.",
-		epilog="Use --help to list subcommands and '<subcommand> --help' for per-command flags.",
+		epilog=(
+			"Recommended start:\n"
+			"  android_tooling.py doctor --repo /path/to/repo\n\n"
+			"Use '<subcommand> --help' for command-specific flags and examples."
+		),
+		formatter_class=argparse.RawDescriptionHelpFormatter,
 	)
 	add_repo_argument(parser)
 	subparsers = parser.add_subparsers(dest="subcommand", required=True)
 
-	doctor = subparsers.add_parser("doctor", help="Inspect Android tooling and optionally install SDK packages or create an AVD.")
+	doctor = subparsers.add_parser(
+		"doctor",
+		help="Inspect Android tooling and optionally install SDK packages or create an AVD.",
+		description="Inspect Android tooling, Gradle wrapper details, modules, launchers, devices, and AVDs.",
+		epilog=(
+			"Examples:\n"
+			"  android_tooling.py doctor --repo /path/to/repo\n"
+			"  android_tooling.py doctor --repo /path/to/repo --install-sdk --with-emulator\n"
+			"  android_tooling.py doctor --repo /path/to/repo --create-avd Pixel_9_Pro"
+		),
+		formatter_class=argparse.RawDescriptionHelpFormatter,
+	)
 	add_repo_argument(doctor)
 	doctor.add_argument("--install-sdk", action="store_true", help="Install standard SDK packages if sdkmanager is available.")
 	doctor.add_argument("--with-emulator", action="store_true", help="Include emulator and a default system image when installing SDK packages.")
@@ -1352,13 +1368,35 @@ def parse_args() -> argparse.Namespace:
 	doctor.add_argument("--system-image", help="Override the default system image package.")
 	doctor.add_argument("--create-avd", help="Create an AVD with the given name after ensuring the system image is available.")
 
-	build_lint = subparsers.add_parser("build-lint", help="Resolve Java, then run assembleDebug and lintDebug.")
+	build_lint = subparsers.add_parser(
+		"build-lint",
+		help="Resolve Java, then run assembleDebug and lintDebug.",
+		description="Run Gradle build and lint with a compatible JAVA_HOME and concise output by default.",
+		epilog=(
+			"Examples:\n"
+			"  android_tooling.py build-lint --repo /path/to/repo\n"
+			"  android_tooling.py build-lint --repo /path/to/repo --stream\n"
+			"  android_tooling.py build-lint --repo /path/to/repo :app:assembleDebug :app:lintDebug"
+		),
+		formatter_class=argparse.RawDescriptionHelpFormatter,
+	)
 	add_repo_argument(build_lint)
 	build_lint.add_argument("--out-dir", help="Directory for the combined console log. Defaults to an OS temp directory.")
 	build_lint.add_argument("--stream", action="store_true", help="Stream full Gradle output to stdout. By default output is written only to the log file.")
 	build_lint.add_argument("tasks", nargs="*", help="Override Gradle tasks.")
 
-	capture = subparsers.add_parser("capture", help="Capture screenshot, UI hierarchy, activity state, window state, and logcat.")
+	capture = subparsers.add_parser(
+		"capture",
+		help="Capture screenshot, UI hierarchy, activity state, window state, and logcat.",
+		description="Capture a compact or full device-state bundle for visual debugging.",
+		epilog=(
+			"Examples:\n"
+			"  android_tooling.py capture --serial emulator-5556\n"
+			"  android_tooling.py capture --serial emulator-5556 --skip-hierarchy --skip-dumpsys --skip-logcat\n"
+			"  android_tooling.py capture --serial emulator-5556 --logcat-lines 50"
+		),
+		formatter_class=argparse.RawDescriptionHelpFormatter,
+	)
 	add_repo_argument(capture)
 	capture.add_argument("--serial", help="adb device serial.")
 	capture.add_argument("--out-dir", help="Output directory. Defaults to an OS temp directory.")
@@ -1368,13 +1406,49 @@ def parse_args() -> argparse.Namespace:
 	capture.add_argument("--skip-logcat", action="store_true", help="Skip logcat capture.")
 	capture.add_argument("--logcat-lines", type=int, default=200, help="Maximum number of recent logcat lines to capture.")
 
-	ui = subparsers.add_parser("ui-sequence", help="Batch adb UI actions to reduce repeated approvals.")
+	ui = subparsers.add_parser(
+		"ui-sequence",
+		help="Batch adb UI actions to reduce repeated approvals.",
+		description="Run a sequence of install, launch, input, and capture actions on one device.",
+		epilog=(
+			"Supported actions:\n"
+			"  install APK_PATH\n"
+			"  uninstall PACKAGE\n"
+			"  start PACKAGE/ACTIVITY\n"
+			"  force-stop PACKAGE\n"
+			"  tap X Y\n"
+			"  tap-text LABEL\n"
+			"  tap-desc DESCRIPTION\n"
+			"  tap-id PACKAGE:ID/VIEW\n"
+			"  swipe X1 Y1 X2 Y2 DURATION_MS\n"
+			"  text VALUE\n"
+			"  key KEYCODE_BACK\n"
+			"  grant PACKAGE PERMISSION\n"
+			"  logcat-clear\n"
+			"  sleep SECONDS\n"
+			"  capture\n\n"
+			"Examples:\n"
+			"  android_tooling.py ui-sequence --serial emulator-5556 -- install /tmp/app.apk start com.example/.MainActivity sleep 2 capture\n"
+			"  android_tooling.py ui-sequence --serial emulator-5556 -- tap-text \"New Game\" sleep 1 capture"
+		),
+		formatter_class=argparse.RawDescriptionHelpFormatter,
+	)
 	add_repo_argument(ui)
 	ui.add_argument("--serial", help="adb device serial.")
 	ui.add_argument("--out-dir", help="Capture directory if the sequence includes a capture action.")
 	ui.add_argument("steps", nargs=argparse.REMAINDER, help="Actions: install apk | uninstall package | tap x y | tap-text 'Label' | tap-desc 'Description' | tap-id package:id/view | swipe x1 y1 x2 y2 duration | text value | key KEYCODE_BACK | sleep 1 | start package/activity | force-stop package | grant package permission | logcat-clear | capture")
 
-	start = subparsers.add_parser("start-emulator", help="Launch an emulator from an existing AVD.")
+	start = subparsers.add_parser(
+		"start-emulator",
+		help="Launch an emulator from an existing AVD.",
+		description="Start an Android emulator from an existing AVD, optionally waiting for boot.",
+		epilog=(
+			"Examples:\n"
+			"  android_tooling.py start-emulator --avd Pixel_9_Pro --port 5556 --wait-boot\n"
+			"  android_tooling.py start-emulator --avd Pixel_9_Pro --no-window --no-snapshot"
+		),
+		formatter_class=argparse.RawDescriptionHelpFormatter,
+	)
 	add_repo_argument(start)
 	start.add_argument("--avd", help="AVD name. Defaults to the first available AVD.")
 	start.add_argument("--port", type=int, help="Even console port, such as 5554 or 5556.")
@@ -1385,7 +1459,18 @@ def parse_args() -> argparse.Namespace:
 	start.add_argument("--timeout", type=float, default=300.0, help="Boot wait timeout in seconds.")
 	start.add_argument("--out-dir", help="Directory for emulator stdout/stderr logs.")
 
-	console = subparsers.add_parser("emu-console", help="Send Android Emulator console commands without a telnet dependency.")
+	console = subparsers.add_parser(
+		"emu-console",
+		help="Send Android Emulator console commands without a telnet dependency.",
+		description="Send raw or convenience emulator console commands for power, network, geo, and sensor simulation.",
+		epilog=(
+			"Examples:\n"
+			"  android_tooling.py emu-console --serial emulator-5556 --power-capacity 15 --power-status discharging\n"
+			"  android_tooling.py emu-console --serial emulator-5556 --geo 13.4050 52.5200\n"
+			"  android_tooling.py emu-console --serial emulator-5556 --command 'network speed full'"
+		),
+		formatter_class=argparse.RawDescriptionHelpFormatter,
+	)
 	add_repo_argument(console)
 	console.add_argument("--serial", help="Emulator serial such as emulator-5554.")
 	console.add_argument("--port", type=int, help="Emulator console port, such as 5554.")

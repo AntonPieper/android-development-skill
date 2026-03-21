@@ -1,6 +1,7 @@
 # android-development
 
-Cross-platform Android development skill for GitHub Copilot and other skills-compatible agents.
+Cross-platform Android development skill for GitHub Copilot
+and other skills-compatible agents.
 
 It provides a small Python helper for common Android workflows:
 
@@ -34,9 +35,12 @@ npx skills add /absolute/path/to/android-development -a github-copilot -y
 
 ## Copilot CLI note
 
-Skills do not declare runtime permissions themselves. Tool and path approvals are controlled by the agent runtime.
+Skills do not declare runtime permissions themselves. Tool and
+path approvals are controlled by the agent runtime.
 
-For helper-only, non-interactive `copilot -p` runs, prefer a project install and narrow Python shell approval instead of `--allow-all`:
+For helper-only, non-interactive `copilot -p` runs, prefer a
+project install and narrow Python shell approval instead of
+`--allow-all`:
 
 ```bash
 cd /path/to/repo
@@ -52,7 +56,8 @@ On Windows, also allow `py` if needed:
 copilot -p "Use the android-development skill ..." --allow-tool='shell(py:*)'
 ```
 
-For global installs, add the installed skills directory if the runtime restricts path access:
+For global installs, add the installed skills directory if the
+runtime restricts path access:
 
 ```bash
 copilot -p "Use the android-development skill ..." \
@@ -61,9 +66,13 @@ copilot -p "Use the android-development skill ..." \
   --add-dir ~/.agents/skills
 ```
 
-If you want Copilot CLI to run direct repo shell commands beyond the helper, use a trusted project directory and widen approvals deliberately, for example `--allow-tool='shell'`.
+If you want Copilot CLI to run direct repo shell commands
+beyond the helper, use a trusted project directory and widen
+approvals deliberately, for example `--allow-tool='shell'`.
 
-Without preapproved shell access, non-interactive Copilot CLI runs can deny helper execution because they cannot pause to ask for permission.
+Without preapproved shell access, non-interactive Copilot CLI
+runs can deny helper execution because they cannot pause to ask
+for permission.
 
 ## Helper usage
 
