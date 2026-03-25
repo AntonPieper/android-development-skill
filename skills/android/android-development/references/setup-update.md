@@ -18,6 +18,8 @@ If the project root is not clear yet, find it before running the wrapper:
 find . -maxdepth 4 \( -name gradlew -o -name settings.gradle -o -name settings.gradle.kts \)
 ```
 
+Treat that as the cheap first pass. If it returns nothing but the repo still looks Android-related, widen the search carefully or inspect likely subdirectories before concluding there is no Android project.
+
 If `./gradlew` exists at the chosen root, prefer it over global `gradle`.
 
 ## Required Programs
@@ -81,6 +83,8 @@ After you know the project root, check the wrapper runtime:
 ```
 
 If the project needs a different JDK, switch the shell or Gradle runtime to a compatible JDK before running build tasks.
+
+Only check `adb` or emulator tooling here if the user actually needs device or UI work.
 
 ## Tool Discovery Shortcuts
 

@@ -23,6 +23,8 @@ cat app/build.gradle.kts
 ./gradlew help --task assembleDebug
 ```
 
+Treat the `maxdepth 4` search as the cheap first pass. If it finds nothing, inspect likely Android subdirectories or widen the search once before declaring that the repository has no Android project.
+
 If the sample uses Groovy DSL, substitute `build.gradle` and `settings.gradle`.
 
 ## Typical Patterns

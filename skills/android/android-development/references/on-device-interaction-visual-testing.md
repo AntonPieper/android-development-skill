@@ -40,6 +40,7 @@ sips -Z 512 screen.png --out screen-512.png
 ```
 
 Open the reduced copy first. Keep the original only if you later need more detail.
+If `sips` is unavailable, use an equivalent resize command from a tool that is already installed rather than adding new image tooling just for reduction.
 
 Use the hierarchy dump to find controls:
 
@@ -109,6 +110,8 @@ For video, keep it short and reduce both resolution and frame rate by default:
 ```bash
 ffmpeg -y -i demo.mp4 -vf scale=512:512:force_original_aspect_ratio=decrease -r 10 -an -c:v libx264 -preset veryfast -crf 32 demo-512p.mp4
 ```
+
+If `ffmpeg` is unavailable, keep the recording short and avoid adding a new transcoder unless the user asks for it.
 
 Only rerender at a larger size if the reduced capture loses needed detail.
 

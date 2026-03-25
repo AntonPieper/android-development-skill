@@ -86,9 +86,10 @@ Work read-only.
 
 Find the smallest Android project root for this repository and the smallest standard wrapper-inspection commands you would run next.
 Constraints:
-- Prefer `find . -maxdepth 4` for `gradlew` and `settings.gradle*`.
-- Read at most 2 repo files and at most 120 lines per file.
-- Do not use recursive `grep`, `rg`, or `find` beyond the narrow root-discovery query.
+    - Start with `find . -maxdepth 4` for `gradlew` and `settings.gradle*`.
+    - If that first pass finds nothing, you may widen the search once or inspect likely Android subdirectories.
+    - Read at most 2 repo files and at most 120 lines per file.
+    - Do not use broad recursive search beyond that limited fallback.
 - Do not run build, lint, or test tasks.
 Keep the answer under 12 lines and include the exact project root.
 EOF

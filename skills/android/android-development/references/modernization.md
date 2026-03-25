@@ -7,6 +7,7 @@ Use this file when the project builds poorly because the build system is old, or
 Use current stable upstream releases unless the repo has a clear compatibility reason not to.
 
 Prefer replacing wrapper and plugin versions with standard upstream releases instead of compatibility hacks.
+Do not pick Gradle, AGP, Kotlin, JDK, or compileSdk versions independently. First identify the version source of truth and check the current compatibility matrix that applies to the repo.
 
 ## Detect First
 
@@ -16,6 +17,7 @@ Search for legacy signals before editing:
 - `jcenter()`
 - `flatDir {}`
 - `compile`, `testCompile`, `androidTestCompile`
+- Kotlin plugin versions pinned far behind the rest of the build
 - support libraries instead of AndroidX
 - missing `namespace`
 - root `allprojects` or `subprojects` mutation
@@ -83,11 +85,15 @@ When reviewing wrapper updates, verify the wrapper JAR against Gradle-published 
 
 Upgrade AGP together with a compatible Gradle and JDK.
 
+Also account for the Kotlin plugin and, when relevant, compileSdk requirements. Very old Android builds often fail because one of those stays behind while the others move.
+
 If versions are hidden behind plugin aliases or a version catalog, resolve those first before deciding whether the project is truly current.
 
 If plugin versions come from `libs.versions.toml` or `pluginManagement`, replace them there once instead of editing every module.
 
 If the project is very old, inspect custom build logic before jumping versions. A modern wrapper alone will not fix old AGP internals, root scripts, or deprecated APIs.
+
+When the safe target version is unclear, stop and report the compatibility question before editing instead of guessing.
 
 ## Stop Conditions
 

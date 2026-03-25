@@ -1,35 +1,36 @@
 ---
 name: android-development
-description: Token-efficient Android CLI workflow for setup, validation, device work, visual checks, and modernization.
+description: Use this skill when the user needs a standard Android CLI workflow to find the right Android project root, choose the smallest build, lint, or test command, work with a device or emulator, triage UI issues from screenshots, or modernize legacy Gradle or Android build logic.
 ---
 
 # Android Development
 
-Keep context small. Read only the next file, command output, screenshot, or XML slice you need. If Android or Copilot behavior is unclear, check official docs first with GitHub Docs, Context7, web tools, browser tools, or GitHub MCP.
+Keep context small. Read only the next file, command output, screenshot, or XML slice you need. If Android or Gradle behavior is unclear, check current upstream documentation before changing files.
 
 ## Use It When
 
-- The repo is a fresh clone or the Android toolchain is unclear.
-- You need a standard Android CLI workflow without custom scripts.
-- You need a small, repeatable path for build, test, device work, or modernization.
+- The repo is a fresh clone and the Android project root is unclear.
+- You need the smallest standard Android CLI path for build, lint, test, device, emulator, or UI-triage work.
+- You need to inspect or modernize legacy Gradle, AGP, Kotlin, or Android build logic without jumping straight to broad scans.
 
-## Default Flow
+## Pick The Entry Path
 
-1. Discover installed tools if the environment is unclear.
-
-   ```bash
-   java -version
-   adb version
-   adb devices -l
-   ```
-
-2. Find the Android project root.
+1. For build, lint, test, or modernization work, start by finding the Android project root.
 
    ```bash
    find . -maxdepth 4 \( -name gradlew -o -name settings.gradle -o -name settings.gradle.kts \)
    ```
 
-3. Open only the next reference you need, then run the smallest task that answers the question.
+2. Treat that command as the cheap first pass, not a hard limit. If it finds nothing and the repo still looks Android-related, widen the search carefully or inspect likely subdirectories before concluding there is no Android project.
+
+3. For device, emulator, or on-device UI work, discover the target device only when that work is actually needed.
+
+   ```bash
+   adb version
+   adb devices -l
+   ```
+
+4. Open only the next reference you need, then run the smallest task that answers the question.
 
 ## Working Rules
 
@@ -44,6 +45,14 @@ Keep context small. Read only the next file, command output, screenshot, or XML 
 - Prefer stable, idempotent device flows: force-stop, start, verify, then capture.
 - Prefer one finite test or capture sequence, not shell loops.
 - Avoid destructive emulator actions such as `-wipe-data` unless the user asks for them.
+- When modernizing, resolve the source of truth for Gradle, AGP, Kotlin, and JDK versions before proposing changes.
+
+## Gotchas
+
+- Cheap root discovery is a first pass. Do not conclude there is no Android project just because `find . -maxdepth 4` returned nothing.
+- Modernization is not just a wrapper bump. Gradle, AGP, Kotlin, JDK, and often compileSdk constraints have to stay compatible.
+- Do not front-load adb or emulator discovery for build-only tasks.
+- Do not open full hierarchy dumps or unbounded logcat unless the screenshot-first path failed.
 
 ## Progressive Disclosure
 
@@ -62,6 +71,7 @@ Open only the next reference you need:
 Switch to `references/modernization.md` when you see any of these:
 
 - very old Gradle wrapper or AGP
+- Kotlin plugin versions pinned far behind the rest of the build
 - `jcenter()` or `flatDir`
 - `compile` or `testCompile`
 - missing `namespace`
