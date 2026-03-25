@@ -47,15 +47,31 @@ jobs:
         with:
           node-version: '22'
 
+      - name: Configure Pages
+        if: always()
+        uses: actions/configure-pages@v6.0.0
+
       - name: Install Copilot CLI
         run: npm install -g @github/copilot
 
       - name: Run smoke matrix
         run: ./validation/android-development/smoke.sh
 
+      - name: Acquire site showcase data
+        if: always()
+        run: ./validation/android-development/site-showcase.sh
+
       - name: Render smoke report
         if: always()
         run: node ./scripts/render-android-smoke-report.mjs "$RUN_ROOT"
+
+      - name: Build Pages site bundle
+        if: always()
+        run: |
+          node ./scripts/build-pages-site.mjs \
+            "$RUN_ROOT/site-dist" \
+            "$RUN_ROOT" \
+            "https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/data/latest.json"
 
       - name: Upload smoke summary
         if: always()
@@ -66,4 +82,26 @@ jobs:
             ${{ env.RUN_ROOT }}/summary.tsv
             ${{ env.RUN_ROOT }}/skill-package.txt
             ${{ env.RUN_ROOT }}/logs/*.log
+            ${{ env.RUN_ROOT }}/showcase/**
             ${{ env.RUN_ROOT }}/report/**
+            ${{ env.RUN_ROOT }}/site-dist/**
+
+      - name: Upload Pages artifact
+        if: always()
+        uses: actions/upload-pages-artifact@v4.0.0
+        with:
+          path: ${{ env.RUN_ROOT }}/site-dist
+
+  deploy_pages:
+    needs:
+      - preflight
+      - smoke
+    if: ${{ always() && needs.preflight.outputs.has_token == 'true' }}
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5.0.0

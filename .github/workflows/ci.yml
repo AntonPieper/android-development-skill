@@ -28,8 +28,13 @@ jobs:
         run: |
           bash -n scripts/validate-skills-catalog.sh
           bash -n scripts/validate-validation-assets.sh
+          bash -n validation/android-development/site-showcase.sh
           node --check scripts/render-android-smoke-report.mjs
+          node --check scripts/build-pages-site.mjs
           bash -n validation/android-development/smoke.sh
+
+      - name: Build Pages site
+        run: node ./scripts/build-pages-site.mjs "$RUNNER_TEMP/site-build"
 
       - name: Lint Markdown
         uses: DavidAnson/markdownlint-cli2-action@v22

@@ -89,3 +89,5 @@ Skill eval assets for `android-development` live in `validation/android-developm
 The scheduled smoke workflow writes a GitHub Actions job summary and uploads a report artifact with Markdown, JSON, and HTML renderings of the smoke matrix.
 
 The GitHub Pages workflow publishes the static skill site from `site/` using GitHub Actions.
+
+The smoke workflow also acquires a small Copilot-driven showcase dataset and builds a Pages bundle with live smoke metrics, generated visual assets, and curated scenario outputs for the website.
