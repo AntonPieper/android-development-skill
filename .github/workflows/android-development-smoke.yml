@@ -1,0 +1,43 @@
+name: Android Development Smoke
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 6 * * 1'
+
+jobs:
+  smoke:
+    if: ${{ secrets.COPILOT_GITHUB_TOKEN != '' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      GH_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
+      REPOS: termux,cleanarchitecture
+      SCENARIOS: discovery,tasks,modernization,ui-triage
+      JOBS: '2'
+      TIMEOUT_SECONDS: '240'
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Copilot CLI
+        run: npm install -g @github/copilot
+
+      - name: Run smoke matrix
+        run: ./validation/android-development/smoke.sh
+
+      - name: Upload smoke summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-development-smoke
+          path: |
+            /tmp/android-development-smoke/**/summary.tsv
+            /tmp/android-development-smoke/**/skill-package.txt
+            /tmp/android-development-smoke/**/logs/*.log

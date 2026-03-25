@@ -16,8 +16,13 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Validate skills package
-        run: npx skills add "$PWD" --list
+      - name: Validate skills catalog
+        run: ./scripts/validate-skills-catalog.sh
+
+      - name: Syntax check validation scripts
+        run: |
+          bash -n scripts/validate-skills-catalog.sh
+          bash -n validation/android-development/smoke.sh
 
       - name: Lint Markdown
         uses: DavidAnson/markdownlint-cli2-action@v18
