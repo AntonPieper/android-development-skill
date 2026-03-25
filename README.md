@@ -85,3 +85,7 @@ Skill eval assets for `android-development` live in `validation/android-developm
 
 - `evals.json` for output-quality eval cases and assertions.
 - `trigger-queries.train.json` and `trigger-queries.validation.json` for description-trigger tuning.
+
+The scheduled smoke workflow writes a GitHub Actions job summary and uploads a report artifact with Markdown, JSON, and HTML renderings of the smoke matrix.
+
+The GitHub Pages workflow publishes the static skill site from `site/` using GitHub Actions.

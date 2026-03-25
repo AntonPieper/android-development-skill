@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>android-development | Android CLI Skill for GitHub Copilot</title>
+  <meta name="description" content="A focused GitHub Copilot skill for Android CLI work: root discovery, wrapper-first validation, device and emulator control, screenshot-first UI triage, and safe modernization.">
+  <meta name="theme-color" content="#f4efe4">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="noise" aria-hidden="true"></div>
+  <header class="topbar" data-reveal>
+    <a class="brand" href="#top">android-development</a>
+    <nav class="topnav" aria-label="Primary">
+      <a href="#capabilities">Capabilities</a>
+      <a href="#install">Install</a>
+      <a href="#playbook">Playbook</a>
+      <a href="#proof">Proof</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero shell">
+      <div class="hero-copy" data-reveal>
+        <p class="eyebrow">GitHub Copilot skill for Android teams</p>
+        <h1>Android work, minus the noise.</h1>
+        <p class="lede">
+          Find the right project root, pick the smallest Gradle command, keep device evidence bounded,
+          and modernize old Android builds without guessing your way into a broken upgrade.
+        </p>
+        <div class="hero-actions">
+          <button class="button button-primary" type="button" data-copy="npx skills add AntonPieper/ai-skills --skill android-development">Copy install command</button>
+          <a class="button button-secondary" href="https://github.com/AntonPieper/ai-skills/tree/main/skills/android/android-development" target="_blank" rel="noreferrer">Open skill files</a>
+          <a class="button button-secondary" href="https://github.com/AntonPieper/ai-skills/actions" target="_blank" rel="noreferrer">View workflow runs</a>
+        </div>
+        <p class="microcopy" id="copy-status" aria-live="polite">Installs directly from this repository.</p>
+      </div>
+
+      <div class="hero-panel" data-reveal>
+        <div class="stack-card stack-card-large accent-a">
+          <p class="panel-label">Install</p>
+          <pre><code>npx skills add AntonPieper/ai-skills --skill android-development</code></pre>
+        </div>
+        <div class="stack-card accent-b">
+          <p class="panel-label">Default posture</p>
+          <ul>
+            <li>Wrapper-first commands</li>
+            <li>Screenshot before XML</li>
+            <li>Compatibility before upgrade</li>
+          </ul>
+        </div>
+        <div class="stack-card accent-c">
+          <p class="panel-label">What it optimizes</p>
+          <p>Lower token cost. Smaller reads. Fewer wild guesses.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="signal-band" data-reveal>
+      <div class="signal-track">
+        <span>project root discovery</span>
+        <span>wrapper-first validation</span>
+        <span>device and emulator control</span>
+        <span>screenshot-first UI triage</span>
+        <span>safe modernization</span>
+      </div>
+    </section>
+
+    <section class="shell section-grid" id="capabilities">
+      <div class="section-heading" data-reveal>
+        <p class="eyebrow">What it covers</p>
+        <h2>A skill shaped like a real Android CLI session.</h2>
+        <p>
+          The skill is intentionally narrow: it covers the repetitive Android command-line work that benefits from
+          strong defaults, progressive disclosure, and a few non-obvious gotchas.
+        </p>
+      </div>
+      <div class="card-grid">
+        <article class="feature-card" data-reveal>
+          <p class="feature-index">01</p>
+          <h3>Find the correct root</h3>
+          <p>Starts cheap, stops early, and avoids broad scans until they are justified.</p>
+        </article>
+        <article class="feature-card" data-reveal>
+          <p class="feature-index">02</p>
+          <h3>Validate with the wrapper</h3>
+          <p>Targets `./gradlew` help, build, lint, and test commands instead of wandering through tasks menus.</p>
+        </article>
+        <article class="feature-card" data-reveal>
+          <p class="feature-index">03</p>
+          <h3>Control devices sanely</h3>
+          <p>Uses explicit serial targeting, bounded log capture, and finite reproduction loops.</p>
+        </article>
+        <article class="feature-card" data-reveal>
+          <p class="feature-index">04</p>
+          <h3>Triage UI with less context</h3>
+          <p>Defaults to reduced screenshots, only opens XML when needed, and treats full dumps as a last resort.</p>
+        </article>
+        <article class="feature-card" data-reveal>
+          <p class="feature-index">05</p>
+          <h3>Modernize without cargo cults</h3>
+          <p>Frames upgrades as a compatibility problem across Gradle, AGP, Kotlin, JDK, and compileSdk.</p>
+        </article>
+        <article class="feature-card" data-reveal>
+          <p class="feature-index">06</p>
+          <h3>Keep the top-level file lean</h3>
+          <p>The dispatcher stays short. Heavier details live in focused reference files loaded only when relevant.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="shell editorial" id="install">
+      <div class="editorial-copy" data-reveal>
+        <p class="eyebrow">Install and run</p>
+        <h2>Three commands, one entry point.</h2>
+        <p>
+          The skill ships as a normal installable package from this repository. It works best when the agent needs Android-specific
+          context it would not reliably infer on its own.
+        </p>
+      </div>
+      <div class="command-board" data-reveal>
+        <article class="command-card">
+          <h3>Install from GitHub</h3>
+          <pre><code>npx skills add AntonPieper/ai-skills --skill android-development</code></pre>
+        </article>
+        <article class="command-card">
+          <h3>List skills</h3>
+          <pre><code>npx skills add AntonPieper/ai-skills --list</code></pre>
+        </article>
+        <article class="command-card">
+          <h3>Install from a clone</h3>
+          <pre><code>npx skills add "$PWD" --skill android-development -g -a github-copilot -y</code></pre>
+        </article>
+      </div>
+    </section>
+
+    <section class="shell documentation" id="playbook">
+      <div class="section-heading narrow" data-reveal>
+        <p class="eyebrow">Documentation map</p>
+        <h2>Short entrypoint, deeper references only when needed.</h2>
+      </div>
+      <div class="doc-grid">
+        <article class="doc-card" data-reveal>
+          <h3>Setup and updates</h3>
+          <p>Use when the environment is unclear, the SDK is missing, or the wrapper needs a compatible JDK.</p>
+          <a href="https://github.com/AntonPieper/ai-skills/blob/main/skills/android/android-development/references/setup-update.md" target="_blank" rel="noreferrer">Read setup-update.md</a>
+        </article>
+        <article class="doc-card" data-reveal>
+          <h3>Build, lint, and test</h3>
+          <p>Use the smallest wrapper task that answers the question, then inspect reports before asking for more output.</p>
+          <a href="https://github.com/AntonPieper/ai-skills/blob/main/skills/android/android-development/references/build-lint-test.md" target="_blank" rel="noreferrer">Read build-lint-test.md</a>
+        </article>
+        <article class="doc-card" data-reveal>
+          <h3>Devices and emulators</h3>
+          <p>Prefer explicit serials, headless emulator flags when needed, and reset state only when state is the actual problem.</p>
+          <a href="https://github.com/AntonPieper/ai-skills/blob/main/skills/android/android-development/references/device-emulator-control.md" target="_blank" rel="noreferrer">Read device-emulator-control.md</a>
+        </article>
+        <article class="doc-card" data-reveal>
+          <h3>UI triage</h3>
+          <p>Screenshot first, targeted hierarchy slices second, bounded logcat last. That order is the cost model.</p>
+          <a href="https://github.com/AntonPieper/ai-skills/blob/main/skills/android/android-development/references/on-device-interaction-visual-testing.md" target="_blank" rel="noreferrer">Read on-device-interaction-visual-testing.md</a>
+        </article>
+        <article class="doc-card" data-reveal>
+          <h3>Modernization</h3>
+          <p>Treat upgrades as source-of-truth and compatibility work, not a blind version bump.</p>
+          <a href="https://github.com/AntonPieper/ai-skills/blob/main/skills/android/android-development/references/modernization.md" target="_blank" rel="noreferrer">Read modernization.md</a>
+        </article>
+      </div>
+    </section>
+
+    <section class="shell proof" id="proof">
+      <div class="proof-header" data-reveal>
+        <p class="eyebrow">Proof, not just prose</p>
+        <h2>The repo carries its own validation surface.</h2>
+      </div>
+      <div class="proof-grid">
+        <article class="proof-card" data-reveal>
+          <h3>Catalog validation</h3>
+          <p>Checks discovery, packaging, references, and installability from the repository root.</p>
+        </article>
+        <article class="proof-card" data-reveal>
+          <h3>Smoke workflow summaries</h3>
+          <p>Scheduled and manual runs now publish a readable job summary plus Markdown, JSON, and HTML report artifacts.</p>
+        </article>
+        <article class="proof-card" data-reveal>
+          <h3>Eval inventory</h3>
+          <p>The repo carries output-quality and trigger-query fixtures so the skill can be iterated with explicit coverage.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="shell closing" data-reveal>
+      <div>
+        <p class="eyebrow">Built for real repository work</p>
+        <h2>Use it when generic Android advice starts wasting tokens.</h2>
+      </div>
+      <div class="closing-actions">
+        <a class="button button-primary" href="https://github.com/AntonPieper/ai-skills" target="_blank" rel="noreferrer">Open repository</a>
+        <a class="button button-secondary" href="https://github.com/AntonPieper/ai-skills/actions/workflows/android-development-smoke.yml" target="_blank" rel="noreferrer">Open smoke workflow</a>
+      </div>
+    </section>
+  </main>
+
+  <script src="./script.js"></script>
+</body>
+</html>
