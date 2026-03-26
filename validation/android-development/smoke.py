@@ -247,7 +247,7 @@ def make_config() -> Config:
         stream_mode=os.environ.get("STREAM_MODE", "on"),
         timeout_seconds=int(os.environ.get("TIMEOUT_SECONDS", "1500")),
         skip_clone=env_bool("SKIP_CLONE", False),
-        install_skill=env_bool("INSTALL_SKILL", False),
+        install_skill=env_bool("INSTALL_SKILL", True),
         fail_on_scenario_error=env_bool("FAIL_ON_SCENARIO_ERROR", False),
         copilot_log_level=os.environ.get("COPILOT_LOG_LEVEL", "warning"),
         copilot_output_format=os.environ.get("COPILOT_OUTPUT_FORMAT", "text"),
@@ -277,8 +277,10 @@ def log_both(cfg: Config, message: str) -> None:
     append_run_log(cfg, message)
 
 
-def run_checked(cmd: list[str], cwd: Path | None = None) -> None:
-    subprocess.run(cmd, cwd=str(cwd) if cwd else None, check=True)
+def run_checked(
+    cmd: list[str], cwd: Path | None = None, env: dict[str, str] | None = None
+) -> None:
+    subprocess.run(cmd, cwd=str(cwd) if cwd else None, env=env, check=True)
 
 
 def git_checkout_fixture(cfg: Config, scenario: Scenario) -> Path:
@@ -503,39 +505,60 @@ def json_status(path: Path) -> str:
     return str(data.get("status", "missing"))
 
 
-def validate_and_optionally_install_skill(cfg: Config) -> None:
+def validate_skill_package(cfg: Config) -> str | None:
     npx = shutil.which("npx")
     if not npx:
+        if cfg.install_skill:
+            die("Project-level skill installation requires npx; set INSTALL_SKILL=0 to skip")
         cfg.skill_list_file.write_text(
             "npx not available; skipped skills package validation\n", encoding="utf-8"
         )
-        return
+        return None
 
     with cfg.skill_list_file.open("w", encoding="utf-8") as f:
         subprocess.run(
-            [npx, "-y", "skills", "add", str(cfg.skill_dir), "--list"],
+            [npx, "-y", "skills", "add", str(cfg.repo_root), "--list"],
+            cwd=str(cfg.repo_root),
             stdout=f,
             stderr=subprocess.STDOUT,
             check=False,
         )
 
-    if cfg.install_skill:
-        log_both(cfg, "Installing skill into GitHub Copilot integration")
-        run_checked(
-            [
-                npx,
-                "-y",
-                "skills",
-                "add",
-                str(cfg.skill_dir),
-                "-g",
-                "-a",
-                "github-copilot",
-                "-y",
-            ]
-        )
-    else:
-        log_both(cfg, "Skipping global skill installation (INSTALL_SKILL=0)")
+    return npx
+
+
+def install_skill_into_repo(
+    cfg: Config, npx: str, scenario: Scenario, repo_dir: Path
+) -> None:
+    install_home = cfg.run_root / "skills-home" / scenario.scenario_id
+    npm_cache_dir = install_home / ".npm"
+    install_home.mkdir(parents=True, exist_ok=True)
+    npm_cache_dir.mkdir(parents=True, exist_ok=True)
+
+    log_both(
+        cfg,
+        f"Installing skill into project repo: {scenario.repo_label}",
+    )
+    run_checked(
+        [
+            npx,
+            "-y",
+            "skills",
+            "add",
+            str(cfg.repo_root),
+            "--skill",
+            cfg.skill_dir.name,
+            "-a",
+            "github-copilot",
+            "-y",
+        ],
+        cwd=repo_dir,
+        env={
+            **os.environ,
+            "HOME": str(install_home),
+            "npm_config_cache": str(npm_cache_dir),
+        },
+    )
 
 
 def append_summary(cfg: Config, row: list[str]) -> None:
@@ -571,9 +594,14 @@ def write_step_summary(cfg: Config) -> None:
         f.write(f"\nRun root: `{cfg.run_root}`\n")
 
 
-def run_case(cfg: Config, scenario: Scenario) -> bool:
+def run_case(cfg: Config, scenario: Scenario, npx: str | None) -> bool:
     with gha_group(f"{scenario.scenario_id} ({scenario.repo_label})"):
         repo_dir = git_checkout_fixture(cfg, scenario)
+
+        if cfg.install_skill:
+            if npx is None:
+                die("Project-level skill installation requires npx; set INSTALL_SKILL=0 to skip")
+            install_skill_into_repo(cfg, npx, scenario, repo_dir)
 
         scenario_dir = cfg.scenarios_out_dir / scenario.scenario_id
         raw_dir = scenario_dir / "raw"
@@ -677,11 +705,18 @@ def main() -> int:
     log_both(cfg, f"Skill dir: {cfg.skill_dir}")
     log_both(cfg, f"Color mode: {cfg.use_color}")
 
-    validate_and_optionally_install_skill(cfg)
+    npx = validate_skill_package(cfg)
+    if cfg.install_skill:
+        log_both(
+            cfg,
+            "Project-level skill installation enabled (default; set INSTALL_SKILL=0 to skip)",
+        )
+    else:
+        log_both(cfg, "Skipping project-level skill installation (INSTALL_SKILL=0)")
 
     failures = 0
     for scenario in load_scenarios(cfg):
-        ok = run_case(cfg, scenario)
+        ok = run_case(cfg, scenario, npx)
         if not ok:
             failures += 1
 

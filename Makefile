@@ -9,7 +9,7 @@
 #   MODEL              — Copilot model name
 #   REASONING_EFFORT   — Copilot reasoning effort
 #   TIMEOUT_SECONDS    — per-scenario timeout
-#   INSTALL_SKILL      — 1 to install the skill globally before running
+#   INSTALL_SKILL      — 0 to skip installing the skill into each scenario project before running
 #   FAIL_ON_SCENARIO_ERROR — 1 to exit non-zero on any scenario failure
 #   SKIP_CLONE         — 1 to reuse already-cloned fixture repos
 #   COPILOT_BIN        — explicit path to the Copilot CLI binary
