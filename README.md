@@ -98,6 +98,13 @@ Skill eval assets for `android-development` live in `validation/android-developm
 
 The scheduled smoke workflow writes a GitHub Actions job summary and uploads a report artifact with Markdown, JSON, HTML, processed screenshots, cropped WebP stills, a short device recording, and the raw Android evidence bundle.
 
-The GitHub Pages workflow publishes the static skill site from `site/` using GitHub Actions.
+The GitHub Pages workflow publishes the generated static site from `dist/site/`, built by `node ./scripts/build-pages-site.mjs ./dist/site` in GitHub Actions.
+
+For local preview, build the generated bundle first and then serve `dist/site/` over HTTP. Serving raw `site/` will skip the generated `data/latest.json` payload that the page expects.
+
+```bash
+npm run build:site
+python3 -m http.server 4173 -d ./dist/site
+```
 
 The smoke workflow now combines three data lanes for the website: prompt smoke telemetry, a Copilot-driven showcase dataset, and an emulator-backed Android tooling smoke that builds a public sample app, captures screenshots and video, processes those assets, and emits a richer Pages bundle for the site.

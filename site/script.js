@@ -1,22 +1,28 @@
-const copyButton = document.querySelector('[data-copy]');
 const copyStatus = document.querySelector('#copy-status');
 
-if (copyButton) {
-  copyButton.addEventListener('click', async () => {
-    const text = copyButton.getAttribute('data-copy') || '';
-
-    try {
-      await navigator.clipboard.writeText(text);
-      if (copyStatus) {
-        copyStatus.textContent = 'Install command copied to clipboard.';
-      }
-    } catch {
-      if (copyStatus) {
-        copyStatus.textContent = 'Copy failed. The install command is visible in the install section.';
-      }
+async function copyText(text, label) {
+  try {
+    await navigator.clipboard.writeText(text);
+    if (copyStatus) {
+      copyStatus.textContent = `${label} copied.`;
     }
-  });
+  } catch {
+    if (copyStatus) {
+      copyStatus.textContent = `${label} could not be copied. It is still visible on the page.`;
+    }
+  }
 }
+
+document.addEventListener('click', (event) => {
+  const button = event.target.closest('[data-copy-text]');
+  if (!button) {
+    return;
+  }
+
+  const text = button.getAttribute('data-copy-text') || '';
+  const label = button.getAttribute('data-copy-label') || 'Text';
+  copyText(text, label);
+});
 
 const revealNodes = document.querySelectorAll('[data-reveal]');
 
@@ -40,21 +46,24 @@ if ('IntersectionObserver' in window) {
   revealNodes.forEach((node) => node.classList.add('is-visible'));
 }
 
-const snapshotTitle = document.querySelector('#snapshot-title');
-const snapshotCopy = document.querySelector('#snapshot-copy');
+const heroStatus = document.querySelector('#hero-status');
+const heroStageTitle = document.querySelector('#hero-stage-title');
+const heroStageCopy = document.querySelector('#hero-stage-copy');
+const stageDebugNote = document.querySelector('#stage-debug-note');
+const heroVisualImage = document.querySelector('#hero-visual-image');
+const heroVisualEmpty = document.querySelector('#hero-visual-empty');
+const heroVisualKicker = document.querySelector('#hero-visual-kicker');
 const heroMetrics = document.querySelector('#hero-metrics');
+const heroBadges = document.querySelector('#hero-badges');
 const reportLink = document.querySelector('#report-link');
 const workflowLink = document.querySelector('#workflow-link');
+
+const usecaseGrid = document.querySelector('#usecase-grid');
 const toolingTitle = document.querySelector('#tooling-title');
 const toolingCopy = document.querySelector('#tooling-copy');
 const toolingStatus = document.querySelector('#tooling-status');
-const matrixVisual = document.querySelector('#matrix-visual');
-const scenarioVisual = document.querySelector('#scenario-visual');
-const matrixGrid = document.querySelector('#matrix-grid');
-const scenarioList = document.querySelector('#scenario-list');
-const proofList = document.querySelector('#proof-list');
-const repoList = document.querySelector('#repo-list');
-const showcaseGrid = document.querySelector('#showcase-grid');
+const proofFacts = document.querySelector('#proof-facts');
+
 const evidenceTabs = document.querySelector('#evidence-tabs');
 const evidenceCaption = document.querySelector('#evidence-caption');
 const toolingImage = document.querySelector('#tooling-image');
@@ -64,11 +73,50 @@ const toolingChecks = document.querySelector('#tooling-checks');
 const toolingSignals = document.querySelector('#tooling-signals');
 const toolingCommands = document.querySelector('#tooling-commands');
 
+const matrixVisual = document.querySelector('#matrix-visual');
+const scenarioVisual = document.querySelector('#scenario-visual');
+const repoList = document.querySelector('#repo-list');
+const scenarioList = document.querySelector('#scenario-list');
+const showcaseGrid = document.querySelector('#showcase-grid');
+const starterGrid = document.querySelector('#starter-grid');
+
+const scenarioOrder = ['discovery', 'tasks', 'modernization', 'ui-triage'];
 const scenarioNames = {
   discovery: 'Root Discovery',
   tasks: 'Task Selection',
   modernization: 'Modernization',
   'ui-triage': 'UI Triage',
+};
+
+const scenarioMeta = {
+  discovery: {
+    title: 'Stop wandering through the repo.',
+    summary: 'Find the real Android root first. Then take the next cheap wrapper-level step.',
+    highlights: ['Find gradlew and settings files fast', 'Stay shallow before widening the search', 'Name the next safe command, not ten maybe-commands'],
+    starterPrompt: 'Find the smallest Android project root here and tell me the first safe command to inspect it.',
+    quote: 'Root first. Everything else gets cheaper after that.',
+  },
+  tasks: {
+    title: 'Pick the next Android command without guessing.',
+    summary: 'The skill narrows build, lint, unit test, and connected test commands from the smallest useful files.',
+    highlights: ['Prefer wrapper-first commands', 'Avoid broad task dumps when a small read is enough', 'Separate build, test, and device work clearly'],
+    starterPrompt: 'Tell me the smallest Gradle commands for build, lint, unit tests, and connected tests in this repo.',
+    quote: 'The best next command is specific, small, and reproducible.',
+  },
+  modernization: {
+    title: 'Spot Android upgrade risk before it blows up.',
+    summary: 'Look for legacy Gradle, AGP, Kotlin, namespace, JDK, and compileSdk signals before touching code.',
+    highlights: ['Read wrapper and top-level Gradle files first', 'Stop after a few concrete legacy signals', 'Name the first safe modernization step'],
+    starterPrompt: 'Check whether this Android project needs modernization guidance and name the first safe next step.',
+    quote: 'Modernization works better when it starts from evidence, not vibes.',
+  },
+  'ui-triage': {
+    title: 'Look at the screen before the hierarchy dump.',
+    summary: 'The skill keeps on-device triage token-light by making screenshots the default and XML optional.',
+    highlights: ['Start with a screenshot', 'Use bounded XML only when the screenshot is not enough', 'Keep video and logcat short and focused'],
+    starterPrompt: 'Give me the smallest screenshot-first Android UI triage plan for this project.',
+    quote: 'Screenshots tell the story. XML is backup, not the opening move.',
+  },
 };
 
 function fallbackSiteData() {
@@ -90,20 +138,23 @@ function fallbackSiteData() {
       triggerValidationQueries: 0,
     },
     repo_stats: [],
-    matrix: {
-      repos: [],
-      scenarios: [],
-      cells: [],
-    },
     scenario_stats: [],
     showcase: [],
     tooling: null,
     links: {},
     visuals: {},
+    source: 'fallback',
   };
 }
 
-function statCard(label, value, tone = 'default') {
+function createEmptyNote(text) {
+  const paragraph = document.createElement('p');
+  paragraph.className = 'empty-state empty-state-inline';
+  paragraph.textContent = text;
+  return paragraph;
+}
+
+function createMetricCard(label, value, tone = 'default') {
   const article = document.createElement('article');
   article.className = `metric-card metric-card-${tone}`;
 
@@ -119,30 +170,289 @@ function statCard(label, value, tone = 'default') {
   return article;
 }
 
-function createEmptyNote(text) {
-  const paragraph = document.createElement('p');
-  paragraph.className = 'empty-state';
-  paragraph.textContent = text;
-  return paragraph;
+function createListRow(className, labelText, valueText) {
+  const row = document.createElement('div');
+  row.className = className;
+
+  const label = document.createElement('span');
+  label.textContent = labelText;
+
+  const value = document.createElement('strong');
+  value.textContent = valueText;
+
+  row.append(label, value);
+  return row;
 }
 
-function renderMetrics(data) {
-  heroMetrics.replaceChildren(
-    statCard('Pass rate', `${data.headline.pass_rate}%`, data.headline.failed > 0 ? 'warning' : 'success'),
-    statCard('Cases', String(data.headline.total_cases)),
-    statCard('Repos', String(data.headline.repos_covered)),
-    statCard('Scenarios', String(data.headline.scenarios_covered)),
-    statCard('Input tokens', data.headline.total_input_tokens.toLocaleString()),
-    statCard('Output tokens', data.headline.total_output_tokens.toLocaleString()),
+function createCopyButton(text, label, className = 'button button-ghost is-small') {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = className;
+  button.textContent = label;
+  button.setAttribute('data-copy-text', text);
+  button.setAttribute('data-copy-label', label);
+  return button;
+}
+
+function buildUseCases(data) {
+  const showcaseByScenario = new Map(
+    (data.showcase || []).map((item) => [item.scenario, item]),
   );
+
+  return scenarioOrder.map((scenario) => {
+    const meta = scenarioMeta[scenario];
+    const showcase = showcaseByScenario.get(scenario);
+
+    return {
+      scenario,
+      badge: scenarioNames[scenario] || scenario,
+      repoLabel: showcase?.repo_label || 'Smoke scenario',
+      repoUrl: showcase?.repo_url || '',
+      title: showcase?.headline || meta.title,
+      summary: showcase?.summary || meta.summary,
+      highlights: Array.isArray(showcase?.highlights) && showcase.highlights.length > 0
+        ? showcase.highlights.slice(0, 3)
+        : meta.highlights,
+      commands: Array.isArray(showcase?.commands) ? showcase.commands.slice(0, 2) : [],
+      starterPrompt: showcase?.starter_prompt || meta.starterPrompt,
+      quote: showcase?.quote || meta.quote,
+    };
+  });
 }
 
-function renderProof(data) {
-  proofList.replaceChildren(
-    statCard('Output eval cases', String(data.coverage.outputEvalCases)),
-    statCard('Trigger queries', String(data.coverage.triggerQueriesTotal)),
-    statCard('Train split', String(data.coverage.triggerTrainQueries)),
-    statCard('Validation split', String(data.coverage.triggerValidationQueries)),
+function pickHeroVisual(data) {
+  if (data.tooling?.media?.wide) {
+    return {
+      src: data.tooling.media.wide,
+      label: 'Processed wide WebP from the emulator-backed smoke.',
+    };
+  }
+
+  if (data.tooling?.media?.videoPoster) {
+    return {
+      src: data.tooling.media.videoPoster,
+      label: 'Poster frame from the latest short Android device clip.',
+    };
+  }
+
+  if (data.tooling?.media?.primary) {
+    return {
+      src: data.tooling.media.primary,
+      label: 'Processed Android screenshot from the latest tooling smoke.',
+    };
+  }
+
+  if (data.visuals?.matrix) {
+    return {
+      src: data.visuals.matrix,
+      label: 'Latest prompt smoke matrix generated for the website.',
+    };
+  }
+
+  return null;
+}
+
+function setStageDebugNote(message = '', tone = 'muted') {
+  if (!stageDebugNote) {
+    return;
+  }
+
+  if (!message) {
+    stageDebugNote.textContent = '';
+    stageDebugNote.className = 'stage-debug-note is-hidden';
+    return;
+  }
+
+  stageDebugNote.textContent = message;
+  stageDebugNote.className = `stage-debug-note stage-debug-note-${tone}`;
+}
+
+function getSiteMode(data, runtime = {}) {
+  const hasLiveData = data.source !== 'fallback';
+  const hasTooling = Boolean(data.tooling);
+
+  if (runtime.fetchError) {
+    return {
+      mode: 'fetch-error',
+      hasLiveData: false,
+      hasTooling: false,
+    };
+  }
+
+  if (!hasLiveData) {
+    return {
+      mode: 'fallback-build',
+      hasLiveData: false,
+      hasTooling: false,
+    };
+  }
+
+  if (hasTooling) {
+    return {
+      mode: 'live',
+      hasLiveData: true,
+      hasTooling: true,
+    };
+  }
+
+  return {
+    mode: 'prompt-only',
+    hasLiveData: true,
+    hasTooling: false,
+  };
+}
+
+function renderHero(data, runtime = {}) {
+  const siteMode = getSiteMode(data, runtime);
+  const { hasLiveData, hasTooling } = siteMode;
+
+  heroStatus.textContent = hasTooling ? 'live' : hasLiveData ? 'prompt-only' : 'offline';
+  heroStatus.classList.toggle('is-live', hasTooling);
+  heroStatus.classList.toggle('is-soft', !hasTooling && hasLiveData);
+
+  if (siteMode.mode === 'fetch-error') {
+    heroStageTitle.textContent = 'Generated site data could not be loaded.';
+    heroStageCopy.textContent = 'The page fell back to starter content because ./data/latest.json was unavailable at runtime.';
+    setStageDebugNote(`Preview error: ${runtime.fetchError}. Build the site and serve dist/site when debugging locally.`, 'warning');
+  } else if (siteMode.mode === 'fallback-build') {
+    heroStageTitle.textContent = 'Fallback build loaded without smoke data.';
+    heroStageCopy.textContent = 'This build still shows the core prompts and structure, but live proof and Android media only appear when a smoke-backed run is bundled.';
+    setStageDebugNote('This is the expected local output from npm run build:site without a smoke run bundle. Rebuild with generated artifacts to light up live proof.', 'muted');
+  } else if (!hasLiveData) {
+    heroStageTitle.textContent = 'Waiting for the first proof bundle.';
+    heroStageCopy.textContent = 'Publish a smoke-backed run and this page will light up with screenshots, short video, and generated playbook cards.';
+    setStageDebugNote();
+  } else if (hasTooling) {
+    heroStageTitle.textContent = 'Real repo checks. Real device receipts.';
+    heroStageCopy.textContent = `${data.headline.repos_covered} public repos checked. ${data.headline.passed}/${data.headline.total_cases} read-only prompt runs passed. Processed screenshots, crops, and short video are bundled for the site.`;
+    setStageDebugNote();
+  } else {
+    heroStageTitle.textContent = `${data.headline.passed}/${data.headline.total_cases} read-only prompt runs passed.`;
+    heroStageCopy.textContent = `${data.headline.repos_covered} public repos checked across ${data.headline.scenarios_covered} scenarios. Device evidence appears as soon as the tooling lane publishes.`;
+    setStageDebugNote();
+  }
+
+  heroMetrics.replaceChildren(
+    createMetricCard('Pass rate', `${data.headline.pass_rate}%`, data.headline.failed > 0 ? 'warning' : 'success'),
+    createMetricCard('Prompt runs', String(data.headline.total_cases || 0)),
+    createMetricCard('Repos', String(data.headline.repos_covered || 0)),
+    createMetricCard('Media', hasTooling ? 'live' : 'pending', hasTooling ? 'success' : 'default'),
+  );
+
+  heroBadges.replaceChildren();
+  const badges = [
+    'Token-light Android guidance',
+    `${data.headline.repos_covered || 0} public repos in smoke`,
+    hasTooling ? 'Screenshots, crops, and video bundled' : 'Device evidence lane ready',
+    'Built for agents, not dashboards',
+  ];
+
+  for (const badgeText of badges) {
+    const badge = document.createElement('span');
+    badge.className = 'hero-badge';
+    badge.textContent = badgeText;
+    heroBadges.append(badge);
+  }
+
+  const visual = pickHeroVisual(data);
+  if (!visual) {
+    heroVisualImage.classList.add('is-hidden');
+    heroVisualEmpty.classList.remove('is-hidden');
+    heroVisualKicker.textContent = 'No visual proof is published yet.';
+    return;
+  }
+
+  heroVisualImage.src = visual.src;
+  heroVisualImage.classList.remove('is-hidden');
+  heroVisualEmpty.classList.add('is-hidden');
+  heroVisualKicker.textContent = visual.label;
+}
+
+function renderUseCases(data) {
+  usecaseGrid.replaceChildren();
+
+  for (const item of buildUseCases(data)) {
+    const card = document.createElement('article');
+    card.className = 'usecase-card';
+
+    const meta = document.createElement('div');
+    meta.className = 'usecase-meta';
+
+    const badge = document.createElement('span');
+    badge.className = 'usecase-badge';
+    badge.textContent = item.badge;
+
+    const repo = document.createElement('span');
+    repo.className = 'usecase-repo';
+    repo.textContent = item.repoLabel;
+
+    meta.append(badge, repo);
+
+    const title = document.createElement('h3');
+    title.textContent = item.title;
+
+    const summary = document.createElement('p');
+    summary.className = 'usecase-summary';
+    summary.textContent = item.summary;
+
+    const highlights = document.createElement('ul');
+    highlights.className = 'usecase-highlights';
+    for (const point of item.highlights) {
+      const listItem = document.createElement('li');
+      listItem.textContent = point;
+      highlights.append(listItem);
+    }
+
+    const quote = document.createElement('blockquote');
+    quote.className = 'usecase-quote';
+    quote.textContent = item.quote;
+
+    const promptWrap = document.createElement('div');
+    promptWrap.className = 'prompt-card';
+
+    const promptLabel = document.createElement('span');
+    promptLabel.className = 'panel-label';
+    promptLabel.textContent = 'Starter prompt';
+
+    const promptText = document.createElement('p');
+    promptText.className = 'prompt-text';
+    promptText.textContent = item.starterPrompt;
+
+    const actions = document.createElement('div');
+    actions.className = 'usecase-actions';
+    actions.append(createCopyButton(item.starterPrompt, 'Copy prompt'));
+
+    if (item.repoUrl) {
+      const repoLink = document.createElement('a');
+      repoLink.className = 'button button-secondary is-small';
+      repoLink.href = item.repoUrl;
+      repoLink.target = '_blank';
+      repoLink.rel = 'noreferrer';
+      repoLink.textContent = 'Open example repo';
+      actions.append(repoLink);
+    }
+
+    promptWrap.append(promptLabel, promptText);
+
+    if (item.commands.length > 0) {
+      const commands = document.createElement('pre');
+      commands.className = 'usecase-commands';
+      commands.textContent = item.commands.join('\n');
+      promptWrap.append(commands);
+    }
+
+    promptWrap.append(actions);
+    card.append(meta, title, summary, highlights, quote, promptWrap);
+    usecaseGrid.append(card);
+  }
+}
+
+function renderProofFacts(data) {
+  proofFacts.replaceChildren(
+    createMetricCard('Public repos', String(data.headline.repos_covered || 0)),
+    createMetricCard('Scenarios', String(data.headline.scenarios_covered || 0)),
+    createMetricCard('Eval cases', String(data.coverage.outputEvalCases || 0)),
+    createMetricCard('Trigger queries', String(data.coverage.triggerQueriesTotal || 0)),
   );
 }
 
@@ -155,62 +465,7 @@ function renderRepoStats(data) {
   }
 
   for (const item of data.repo_stats) {
-    const row = document.createElement('div');
-    row.className = 'repo-row';
-
-    const label = document.createElement('span');
-    label.textContent = item.repo;
-
-    const value = document.createElement('strong');
-    value.textContent = `${item.passed}/${item.total} passed`;
-
-    row.append(label, value);
-    repoList.append(row);
-  }
-}
-
-function renderMatrix(data) {
-  matrixGrid.replaceChildren();
-
-  const repos = data.matrix.repos || [];
-  const scenarios = data.matrix.scenarios || [];
-
-  if (repos.length === 0 || scenarios.length === 0) {
-    matrixGrid.append(createEmptyNote('No smoke matrix is published yet.'));
-    return;
-  }
-
-  for (const repo of repos) {
-    const row = document.createElement('div');
-    row.className = 'matrix-row';
-
-    const label = document.createElement('div');
-    label.className = 'matrix-label';
-    label.textContent = repo;
-    row.append(label);
-
-    for (const scenario of scenarios) {
-      const cellData = data.matrix.cells.find((cell) => cell.repo === repo && cell.scenario === scenario);
-      const cell = document.createElement('div');
-      cell.className = `matrix-cell matrix-cell-${(cellData?.result || 'missing').toLowerCase()}`;
-
-      const heading = document.createElement('span');
-      heading.className = 'matrix-cell-heading';
-      heading.textContent = scenarioNames[scenario] || scenario;
-
-      const detail = document.createElement('strong');
-      detail.textContent = cellData?.result || 'MISSING';
-
-      const meta = document.createElement('small');
-      meta.textContent = cellData?.result === 'FAIL'
-        ? (cellData?.exit_code || 'exit 1')
-        : (cellData?.session_time || 'ok');
-
-      cell.append(heading, detail, meta);
-      row.append(cell);
-    }
-
-    matrixGrid.append(row);
+    repoList.append(createListRow('repo-row', item.repo, `${item.passed}/${item.total} passed`));
   }
 }
 
@@ -223,18 +478,32 @@ function renderScenarioStats(data) {
   }
 
   for (const item of data.scenario_stats) {
-    const row = document.createElement('div');
-    row.className = 'scenario-row';
+    scenarioList.append(createListRow('scenario-row', scenarioNames[item.scenario] || item.scenario, `${item.passed}/${item.total} passed`));
+  }
+}
 
-    const label = document.createElement('span');
-    label.className = 'scenario-label';
-    label.textContent = scenarioNames[item.scenario] || item.scenario;
+function renderStarterPrompts(data) {
+  starterGrid.replaceChildren();
 
-    const value = document.createElement('strong');
-    value.textContent = `${item.passed}/${item.total} passed`;
+  for (const item of buildUseCases(data)) {
+    const card = document.createElement('article');
+    card.className = 'starter-card';
 
-    row.append(label, value);
-    scenarioList.append(row);
+    const badge = document.createElement('span');
+    badge.className = 'starter-badge';
+    badge.textContent = item.badge;
+
+    const title = document.createElement('h3');
+    title.textContent = item.title;
+
+    const prompt = document.createElement('p');
+    prompt.className = 'starter-text';
+    prompt.textContent = item.starterPrompt;
+
+    const action = createCopyButton(item.starterPrompt, 'Copy prompt');
+
+    card.append(badge, title, prompt, action);
+    starterGrid.append(card);
   }
 }
 
@@ -249,7 +518,6 @@ function renderShowcase(data) {
   for (const item of data.showcase) {
     const card = document.createElement('article');
     card.className = 'showcase-card';
-    card.classList.add('is-visible');
 
     const meta = document.createElement('div');
     meta.className = 'showcase-meta';
@@ -273,7 +541,6 @@ function renderShowcase(data) {
 
     const highlights = document.createElement('ul');
     highlights.className = 'showcase-highlights';
-
     for (const point of item.highlights || []) {
       const listItem = document.createElement('li');
       listItem.textContent = point;
@@ -281,6 +548,22 @@ function renderShowcase(data) {
     }
 
     card.append(meta, title, summary, highlights);
+
+    if (item.starter_prompt) {
+      const prompt = document.createElement('div');
+      prompt.className = 'showcase-prompt';
+
+      const promptLabel = document.createElement('span');
+      promptLabel.className = 'panel-label';
+      promptLabel.textContent = 'Try asking';
+
+      const promptText = document.createElement('p');
+      promptText.className = 'showcase-prompt-text';
+      promptText.textContent = item.starter_prompt;
+
+      prompt.append(promptLabel, promptText, createCopyButton(item.starter_prompt, 'Copy prompt'));
+      card.append(prompt);
+    }
 
     if (Array.isArray(item.commands) && item.commands.length > 0) {
       const commands = document.createElement('pre');
@@ -366,9 +649,10 @@ function renderTooling(data) {
 
   if (!tooling) {
     toolingTitle.textContent = 'Waiting for device evidence.';
-    toolingCopy.textContent = 'When the emulator-backed smoke publishes a bundle, the site will surface screenshots, video, XML signals, and exact collection commands here.';
+    toolingCopy.textContent = 'When the tooling lane publishes, this section shows processed screenshots, short video, and bounded signals from a real emulator run.';
     toolingStatus.textContent = 'offline';
     toolingStatus.classList.remove('is-live');
+    toolingStatus.classList.remove('is-soft');
     toolingChecks.append(createEmptyNote('No tooling checks are published yet.'));
     toolingSignals.append(createEmptyNote('No UI or log signals are published yet.'));
     toolingCommands.textContent = 'No tooling commands published yet.';
@@ -383,7 +667,7 @@ function renderTooling(data) {
   const refLabel = tooling.sample?.ref ? tooling.sample.ref.slice(0, 7) : 'current';
 
   toolingTitle.textContent = `${sampleLabel} on ${sampleSerial}`;
-  toolingCopy.textContent = `${packageName} at ${displaySize} from ${refLabel}.`;
+  toolingCopy.textContent = `${packageName} at ${displaySize} from ${refLabel}. This is where the site turns raw Android evidence into lightweight WebP stills and short video.`;
   toolingStatus.textContent = 'live';
   toolingStatus.classList.add('is-live');
 
@@ -435,6 +719,15 @@ function renderTooling(data) {
 
   const views = [];
 
+  if (tooling.media?.wide) {
+    views.push({
+      label: 'Wide still',
+      type: 'image',
+      src: tooling.media.wide,
+      caption: 'Wide WebP crop generated for landing-page hero layouts and lighter visual bundles.',
+    });
+  }
+
   if (tooling.media?.primary) {
     views.push({
       label: 'Primary still',
@@ -444,12 +737,21 @@ function renderTooling(data) {
     });
   }
 
+  if (tooling.media?.story) {
+    views.push({
+      label: 'Story crop',
+      type: 'image',
+      src: tooling.media.story,
+      caption: 'Vertical crop generated for smaller story cards and prompt-grounding layouts.',
+    });
+  }
+
   if (tooling.media?.detail) {
     views.push({
       label: 'Detail crop',
       type: 'image',
       src: tooling.media.detail,
-      caption: 'A tighter crop generated for smaller evidence cards and generative layouts.',
+      caption: 'A tighter crop generated for compact UI cards.',
     });
   }
 
@@ -458,7 +760,7 @@ function renderTooling(data) {
       label: 'Device clip',
       type: 'video',
       src: tooling.media.video,
-      poster: tooling.media.videoPoster || tooling.media.poster || '',
+      poster: tooling.media.videoPoster || tooling.media.poster || tooling.media.primary || '',
       caption: 'Short emulator capture showing the app launch and on-device interaction path.',
     });
   }
@@ -481,50 +783,40 @@ function applyLinks(data) {
   }
 }
 
+function renderPage(data, runtime = {}) {
+  renderHero(data, runtime);
+  renderUseCases(data);
+  renderProofFacts(data);
+  renderTooling(data);
+  renderRepoStats(data);
+  renderScenarioStats(data);
+  renderShowcase(data);
+  renderStarterPrompts(data);
+  applyLinks(data);
+
+  if (data.visuals?.matrix) {
+    matrixVisual.src = data.visuals.matrix;
+  }
+
+  if (data.visuals?.scenario_bars) {
+    scenarioVisual.src = data.visuals.scenario_bars;
+  }
+}
+
 async function hydrate() {
   try {
     const response = await fetch('./data/latest.json', { cache: 'no-store' });
     if (!response.ok) {
-      throw new Error('latest.json not available');
+      throw new Error(`latest.json not available (${response.status})`);
     }
 
     const data = await response.json();
-    snapshotTitle.textContent = data.source === 'fallback'
-      ? 'Waiting for the first published run.'
-      : `${data.headline.passed}/${data.headline.total_cases} prompt cases passed`;
-
-    snapshotCopy.textContent = data.source === 'fallback'
-      ? 'The site is live, but no smoke-backed bundle has been published into Pages yet.'
-      : `${data.headline.repos_covered} repositories across ${data.headline.scenarios_covered} prompt scenarios, plus a device-backed Android tooling lane when available.`;
-
-    renderMetrics(data);
-    renderProof(data);
-    renderRepoStats(data);
-    renderMatrix(data);
-    renderScenarioStats(data);
-    renderShowcase(data);
-    renderTooling(data);
-    applyLinks(data);
-
-    if (data.visuals?.matrix) {
-      matrixVisual.src = data.visuals.matrix;
-    }
-
-    if (data.visuals?.scenario_bars) {
-      scenarioVisual.src = data.visuals.scenario_bars;
-    }
-  } catch {
-    const data = fallbackSiteData();
-    snapshotTitle.textContent = 'Smoke data is unavailable.';
-    snapshotCopy.textContent = 'The site loaded, but the latest Pages data bundle could not be fetched.';
-    renderMetrics(data);
-    renderProof(data);
-    renderRepoStats(data);
-    renderMatrix(data);
-    renderScenarioStats(data);
-    renderShowcase(data);
-    renderTooling(data);
-    applyLinks(data);
+    renderPage(data);
+  } catch (error) {
+    console.error('Failed to hydrate site data.', error);
+    renderPage(fallbackSiteData(), {
+      fetchError: error instanceof Error ? error.message : 'Unknown hydration error',
+    });
   }
 }
 

@@ -3,220 +3,275 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>android-development | Android Tooling Control Room</title>
-  <meta name="description" content="A GitHub Copilot skill for Android CLI work with prompt smoke telemetry, emulator-backed tooling evidence, and focused reference docs.">
-  <meta name="theme-color" content="#091019">
+  <title>android-development | Real Android Eyes For Your Agent</title>
+  <meta name="description" content="A GitHub Copilot skill that keeps Android agents grounded with small commands, real screenshots, short video, and proof from public Android repos.">
+  <meta name="theme-color" content="#f6efe4">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Syne:wght@500;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
-  <div class="page-noise" aria-hidden="true"></div>
+  <div class="page-blur page-blur-a" aria-hidden="true"></div>
+  <div class="page-blur page-blur-b" aria-hidden="true"></div>
   <div class="page-grid" aria-hidden="true"></div>
 
   <header class="topbar" data-reveal>
-    <a class="brand" href="#top">android-development</a>
+    <a class="brand" href="#top">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span>android-development</span>
+    </a>
+
     <nav class="topnav" aria-label="Primary">
-      <a href="#snapshot">Snapshot</a>
-      <a href="#evidence">Evidence</a>
-      <a href="#proof">Proof</a>
-      <a href="#playbook">Playbook</a>
-      <a href="#install">Install</a>
+      <a href="#why">Why</a>
+      <a href="#scenes">Scenes</a>
+  <a href="#proof">Proof</a>
+  <a href="#examples">Examples</a>
+  <a href="#start">Start</a>
     </nav>
   </header>
 
   <main id="top">
-    <section class="hero shell" id="snapshot">
+    <section class="hero shell" id="why">
       <div class="hero-copy" data-reveal>
-        <p class="eyebrow">GitHub Copilot skill for Android CLI work</p>
-        <h1>Run the cheapest Android command that still tells the truth.</h1>
-        <p class="lede">
-          The site now treats the skill like an operator surface: prompt smoke telemetry on one side,
-          emulator-backed device evidence on the other, and the exact references that keep Android work bounded.
-        </p>
+  <p class="eyebrow">Android skill for GitHub Copilot</p>
+  <h1>Give your agent real Android eyes.</h1>
+  <p class="lede">Short prompts. Real screenshots. Fewer guesses. This skill helps an agent find the right Android root, choose the next safe command, inspect the UI, and stay grounded in what actually happened.</p>
+
         <div class="hero-actions">
-          <button class="button button-primary" type="button" data-copy="npx skills add AntonPieper/ai-skills --skill android-development">Copy install command</button>
+          <button class="button button-primary" type="button" data-copy-text="npx skills add AntonPieper/ai-skills --skill android-development" data-copy-label="Install command">Copy install</button>
           <a class="button button-secondary" href="https://github.com/AntonPieper/ai-skills/tree/main/skills/android/android-development" target="_blank" rel="noreferrer">Open skill files</a>
         </div>
-        <p class="microcopy" id="copy-status" aria-live="polite">Installs directly from this repository.</p>
+
+        <p class="microcopy" id="copy-status" aria-live="polite">Install once. Use it whenever Android work gets messy.</p>
+
+        <div class="hero-badges" id="hero-badges"></div>
       </div>
 
-      <aside class="hero-stack" data-reveal>
-        <article class="signal-card signal-card-primary">
-          <p class="panel-label">Published run</p>
-          <h2 id="snapshot-title">Loading latest run data...</h2>
-          <p class="snapshot-copy" id="snapshot-copy">The site loads the latest Pages bundle with smoke telemetry, showcase cards, and tooling captures.</p>
-          <div class="metric-grid" id="hero-metrics"></div>
-          <div class="snapshot-links">
-            <a class="button button-secondary is-small is-hidden" id="report-link" href="#">Open latest report</a>
-            <a class="button button-secondary is-small is-hidden" id="workflow-link" href="#" target="_blank" rel="noreferrer">Open workflow run</a>
+      <aside class="hero-stage" data-reveal>
+        <article class="stage-card">
+          <div class="stage-topline">
+            <p class="panel-label">Live proof bundle</p>
+            <span class="status-pill" id="hero-status">loading</span>
           </div>
-        </article>
 
-        <article class="signal-card signal-card-secondary">
-          <div class="signal-heading">
-            <div>
-              <p class="panel-label">Actual tooling smoke</p>
-              <h3 id="tooling-title">Waiting for device evidence.</h3>
-            </div>
-            <span class="status-pill" id="tooling-status">offline</span>
+          <h2 id="hero-stage-title">Loading the latest run...</h2>
+          <p class="stage-copy" id="hero-stage-copy">The site loads the latest prompt smoke data and device evidence bundle.</p>
+          <p class="stage-debug-note is-hidden" id="stage-debug-note" aria-live="polite"></p>
+
+          <div class="stage-visual">
+            <img class="hero-visual-image is-hidden" id="hero-visual-image" alt="Latest Android skill proof visual">
+            <div class="hero-visual-empty" id="hero-visual-empty">Waiting for published proof.</div>
           </div>
-          <p class="signal-copy" id="tooling-copy">When available, this panel reflects a real emulator-backed run that builds, installs, captures, and processes Android evidence.</p>
+
+          <div class="stage-foot">
+            <p class="stage-kicker" id="hero-visual-kicker">Loading visual proof...</p>
+            <div class="metric-grid" id="hero-metrics"></div>
+            <div class="snapshot-links">
+              <a class="button button-secondary is-small is-hidden" id="report-link" href="#">Open latest report</a>
+              <a class="button button-secondary is-small is-hidden" id="workflow-link" href="#" target="_blank" rel="noreferrer">Open workflow run</a>
+            </div>
+          </div>
         </article>
       </aside>
     </section>
 
-    <section class="shell telemetry" data-reveal>
-      <article class="telemetry-card telemetry-card-wide">
-        <p class="panel-label">Why this design changed</p>
-        <h3>Proof is now split into two lanes.</h3>
-        <p>Prompt smoke still matters, but the first screen no longer treats it as the whole story. The new bundle can also ship device screenshots, video, XML/log signals, and the exact commands used to collect them.</p>
+    <section class="signal-strip shell" data-reveal>
+      <article class="signal-tile signal-tile-dark">
+        <p class="panel-label">Grounding</p>
+        <h3>Start with the smallest useful command.</h3>
+        <p>No broad scans. No blind task lists. Just the next move that gives the agent real signal.</p>
       </article>
-      <article class="telemetry-card">
-        <p class="panel-label">Coverage</p>
-        <div class="proof-list" id="proof-list"></div>
+
+      <article class="signal-tile">
+        <p class="panel-label">Proof</p>
+        <h3>Look at the screen before the XML.</h3>
+        <p>The skill pushes screenshot-first UI triage, then uses bounded XML and log slices only when needed.</p>
       </article>
-      <article class="telemetry-card">
-        <p class="panel-label">By repository</p>
+
+      <article class="signal-tile">
+        <p class="panel-label">Speed</p>
+        <h3>Spend fewer tokens to reach the truth.</h3>
+        <p>It turns Android work into short prompts, reproducible commands, and evidence the site can actually show.</p>
+      </article>
+    </section>
+
+    <section class="usecases shell" id="scenes">
+      <div class="section-heading" data-reveal>
+        <div>
+          <p class="eyebrow">What It Helps With</p>
+          <h2>Four moments where generic advice starts to drift.</h2>
+        </div>
+        <p class="section-note">These cards are fed by real smoke scenarios and simplified for humans.</p>
+      </div>
+
+      <div class="usecase-grid" id="usecase-grid"></div>
+    </section>
+
+    <section class="proof-board shell" id="proof">
+      <article class="panel proof-stage" data-reveal>
+        <div class="panel-top">
+          <div>
+            <p class="panel-label">Real Android evidence</p>
+            <h2 id="tooling-title">Waiting for device evidence.</h2>
+          </div>
+          <span class="status-pill" id="tooling-status">offline</span>
+        </div>
+
+        <p class="panel-copy" id="tooling-copy">When the tooling lane publishes, this section shows processed screenshots, short video, and bounded signals from a real emulator run.</p>
+
+        <div class="evidence-tabs" id="evidence-tabs"></div>
+
+        <div class="media-frame">
+          <img class="evidence-image is-hidden" id="tooling-image" alt="Processed Android device screenshot">
+          <video class="evidence-video is-hidden" id="tooling-video" controls playsinline muted preload="metadata"></video>
+          <div class="empty-state" id="tooling-empty">No device artifacts are published yet.</div>
+        </div>
+
+        <p class="media-caption" id="evidence-caption">The latest proof bundle can show a processed screenshot, a tighter crop, and a short device clip.</p>
+      </article>
+
+      <aside class="proof-rail" data-reveal>
+        <article class="rail-card rail-card-cream">
+          <p class="panel-label">What We Check</p>
+          <div class="proof-facts" id="proof-facts"></div>
+        </article>
+
+        <article class="rail-card">
+          <p class="panel-label">Checks</p>
+          <div class="check-list" id="tooling-checks"></div>
+        </article>
+
+        <article class="rail-card">
+          <p class="panel-label">Signals</p>
+          <div class="signal-list" id="tooling-signals"></div>
+        </article>
+
+        <article class="rail-card">
+          <p class="panel-label">Exact Commands</p>
+          <pre class="command-block" id="tooling-commands">No tooling commands published yet.</pre>
+        </article>
+      </aside>
+    </section>
+
+    <section class="visuals shell" data-reveal>
+      <article class="visual-card panel">
+        <div class="panel-headline">
+          <div>
+            <p class="panel-label">Prompt smoke</p>
+            <h3>Read-only runs across public Android repos.</h3>
+          </div>
+          <p>Cheap prompts. Tight scope. Clear pass or fail.</p>
+        </div>
+
+        <img class="visual-image" id="matrix-visual" alt="Latest prompt smoke matrix visualization">
         <div class="repo-list" id="repo-list"></div>
       </article>
+
+      <article class="visual-card panel panel-warm">
+        <div class="panel-headline">
+          <div>
+            <p class="panel-label">Scenario mix</p>
+            <h3>The skill covers the whole Android loop.</h3>
+          </div>
+          <p>Discovery, task picking, upgrades, and UI triage stay visible in one place.</p>
+        </div>
+
+        <img class="visual-image" id="scenario-visual" alt="Scenario balance visualization">
+        <div class="scenario-list" id="scenario-list"></div>
+      </article>
     </section>
 
-    <section class="shell evidence" id="evidence">
-      <div class="section-heading" data-reveal>
-        <p class="eyebrow">Emulator-backed evidence</p>
-        <h2>What the Android toolchain actually produced.</h2>
-      </div>
-
-      <div class="evidence-grid">
-        <article class="evidence-stage panel" data-reveal>
-          <div class="panel-headline">
-            <h3>Device capture deck</h3>
-            <p id="evidence-caption">The bundle can surface a processed screenshot, a detail crop, and a short device recording when the tooling smoke publishes them.</p>
-          </div>
-          <div class="evidence-tabs" id="evidence-tabs"></div>
-          <div class="media-frame">
-            <img class="evidence-image is-hidden" id="tooling-image" alt="Processed Android device screenshot">
-            <video class="evidence-video is-hidden" id="tooling-video" controls playsinline muted preload="metadata"></video>
-            <div class="empty-state" id="tooling-empty">No device artifacts are published yet.</div>
-          </div>
-        </article>
-
-        <aside class="evidence-rail" data-reveal>
-          <article class="rail-card">
-            <p class="panel-label">Checks</p>
-            <div class="check-list" id="tooling-checks"></div>
-          </article>
-
-          <article class="rail-card">
-            <p class="panel-label">Signals</p>
-            <div class="signal-list" id="tooling-signals"></div>
-          </article>
-
-          <article class="rail-card">
-            <p class="panel-label">Exact commands</p>
-            <pre class="command-block" id="tooling-commands">No tooling commands published yet.</pre>
-          </article>
-        </aside>
-      </div>
-    </section>
-
-    <section class="shell results" id="proof">
-      <div class="section-heading" data-reveal>
-        <p class="eyebrow">Prompt smoke telemetry</p>
-        <h2>What the skill said across public Android repositories.</h2>
-      </div>
-
-      <div class="results-grid">
-        <article class="panel panel-visual" data-reveal>
-          <div class="panel-headline">
-            <h3>Smoke matrix</h3>
-            <p>Pass and fail status for the published prompt matrix.</p>
-          </div>
-          <img class="visual-image" id="matrix-visual" alt="Latest smoke matrix visualization">
-          <div class="matrix-grid" id="matrix-grid"></div>
-        </article>
-
-        <article class="panel panel-visual" data-reveal>
-          <div class="panel-headline">
-            <h3>Scenario balance</h3>
-            <p>Discovery, tasks, modernization, and UI triage in the latest run.</p>
-          </div>
-          <img class="visual-image" id="scenario-visual" alt="Scenario balance visualization">
-          <div class="scenario-list" id="scenario-list"></div>
-        </article>
-      </div>
-    </section>
-
-    <section class="shell showcase" id="playbook">
+    <section class="showcase shell" id="examples">
       <div class="section-heading narrow" data-reveal>
-        <p class="eyebrow">Generated playbook cards</p>
-        <h2>Curated prompt outputs that the site can render directly.</h2>
+        <div>
+          <p class="eyebrow">Generated Examples</p>
+          <h2>Small prompts. Concrete moves. No walls of text.</h2>
+        </div>
+        <p class="section-note">These cards come from Copilot CLI smoke outputs and are shaped for the website.</p>
       </div>
+
       <div class="showcase-grid" id="showcase-grid"></div>
     </section>
 
-    <section class="shell docs-install">
-      <section class="docs" data-reveal>
-        <div class="section-heading narrow">
-          <p class="eyebrow">Reference map</p>
-          <h2>Open the next Android reference, not the whole repo.</h2>
+    <section class="quickstart shell" id="start">
+      <div class="section-heading narrow" data-reveal>
+        <div>
+          <p class="eyebrow">Getting Started</p>
+          <h2>Install it once. Then ask for the next grounded Android move.</h2>
         </div>
-        <div class="doc-grid">
-          <a class="doc-card" href="https://github.com/AntonPieper/ai-skills/blob/main/skills/android/android-development/references/setup-update.md" target="_blank" rel="noreferrer">
-            <span>Setup</span>
-            <strong>setup-update.md</strong>
-            <p>JDK, SDK, platform-tools, emulator packages, and wrapper runtime checks.</p>
-          </a>
-          <a class="doc-card" href="https://github.com/AntonPieper/ai-skills/blob/main/skills/android/android-development/references/nested-repo-discovery.md" target="_blank" rel="noreferrer">
-            <span>Discovery</span>
-            <strong>nested-repo-discovery.md</strong>
-            <p>Cheap root discovery in nested repos and monorepos without broad scans.</p>
-          </a>
-          <a class="doc-card" href="https://github.com/AntonPieper/ai-skills/blob/main/skills/android/android-development/references/build-lint-test.md" target="_blank" rel="noreferrer">
-            <span>Validation</span>
-            <strong>build-lint-test.md</strong>
-            <p>Wrapper-first build, lint, unit test, and connected test paths.</p>
-          </a>
-          <a class="doc-card" href="https://github.com/AntonPieper/ai-skills/blob/main/skills/android/android-development/references/device-emulator-control.md" target="_blank" rel="noreferrer">
-            <span>Targets</span>
-            <strong>device-emulator-control.md</strong>
-            <p>Serial discovery, AVD creation, boot readiness, and safe emulator reset policy.</p>
-          </a>
-          <a class="doc-card" href="https://github.com/AntonPieper/ai-skills/blob/main/skills/android/android-development/references/on-device-interaction-visual-testing.md" target="_blank" rel="noreferrer">
-            <span>UI Triage</span>
-            <strong>on-device-interaction-visual-testing.md</strong>
-            <p>Screenshot-first capture, bounded XML, short video, and tight logcat pulls.</p>
-          </a>
-          <a class="doc-card" href="https://github.com/AntonPieper/ai-skills/blob/main/skills/android/android-development/references/modernization.md" target="_blank" rel="noreferrer">
-            <span>Upgrades</span>
-            <strong>modernization.md</strong>
-            <p>Gradle, AGP, Kotlin, namespace, JDK, and compileSdk compatibility checks.</p>
-          </a>
-        </div>
-      </section>
+        <p class="section-note">Use a plain prompt. Let the skill narrow the scope.</p>
+      </div>
 
-      <section class="install" id="install" data-reveal>
-        <div class="section-heading narrow">
-          <p class="eyebrow">Install</p>
-          <h2>Use it when generic Android advice starts wasting tokens.</h2>
+      <div class="quickstart-grid" data-reveal>
+        <article class="step-card step-card-dark">
+          <span class="step-number">01</span>
+          <h3>Add the skill.</h3>
+          <pre><code>npx skills add AntonPieper/ai-skills --skill android-development</code></pre>
+        </article>
+
+        <article class="step-card">
+          <span class="step-number">02</span>
+          <h3>Ask a tiny question.</h3>
+          <p>Start with one repo, one goal, one next step. The skill is built for that.</p>
+        </article>
+
+        <article class="step-card step-card-accent">
+          <span class="step-number">03</span>
+          <h3>Check the proof.</h3>
+          <p>Use screenshots, short video, bounded XML, and exact commands to confirm what happened.</p>
+        </article>
+      </div>
+
+      <div class="starter-grid" id="starter-grid"></div>
+    </section>
+
+    <section class="references shell" data-reveal>
+      <div class="section-heading narrow">
+        <div>
+          <p class="eyebrow">Need More Detail?</p>
+          <h2>Open one reference, not the whole repo.</h2>
         </div>
-        <div class="install-board">
-          <article class="install-card">
-            <span>GitHub</span>
-            <pre><code>npx skills add AntonPieper/ai-skills --skill android-development</code></pre>
-          </article>
-          <article class="install-card">
-            <span>List skills</span>
-            <pre><code>npx skills add AntonPieper/ai-skills --list</code></pre>
-          </article>
-          <article class="install-card">
-            <span>Local clone</span>
-            <pre><code>npx skills add "$PWD" --skill android-development -g -a github-copilot -y</code></pre>
-          </article>
-        </div>
-      </section>
+        <p class="section-note">Each reference is scoped to one Android job.</p>
+      </div>
+
+      <div class="doc-grid">
+        <a class="doc-card" href="https://github.com/AntonPieper/ai-skills/blob/main/skills/android/android-development/references/setup-update.md" target="_blank" rel="noreferrer">
+          <span>Setup</span>
+          <strong>Install JDK, SDK, adb, and emulator tooling</strong>
+          <p>Fast setup and update checks for the Android command line toolchain.</p>
+        </a>
+
+        <a class="doc-card" href="https://github.com/AntonPieper/ai-skills/blob/main/skills/android/android-development/references/nested-repo-discovery.md" target="_blank" rel="noreferrer">
+          <span>Discovery</span>
+          <strong>Find the real Android root</strong>
+          <p>Cheap repo discovery for monorepos, nested apps, and wrapper-first layouts.</p>
+        </a>
+
+        <a class="doc-card" href="https://github.com/AntonPieper/ai-skills/blob/main/skills/android/android-development/references/build-lint-test.md" target="_blank" rel="noreferrer">
+          <span>Tasks</span>
+          <strong>Choose the next build or test command</strong>
+          <p>Wrapper-first guidance for build, lint, unit test, and connected test paths.</p>
+        </a>
+
+        <a class="doc-card" href="https://github.com/AntonPieper/ai-skills/blob/main/skills/android/android-development/references/device-emulator-control.md" target="_blank" rel="noreferrer">
+          <span>Devices</span>
+          <strong>Control real devices and emulators safely</strong>
+          <p>Serial discovery, boot readiness, and safe reset steps for Android targets.</p>
+        </a>
+
+        <a class="doc-card" href="https://github.com/AntonPieper/ai-skills/blob/main/skills/android/android-development/references/on-device-interaction-visual-testing.md" target="_blank" rel="noreferrer">
+          <span>UI Triage</span>
+          <strong>Look at the screen first</strong>
+          <p>Screenshot-first analysis with bounded XML, short video, and tight logcat pulls.</p>
+        </a>
+
+        <a class="doc-card" href="https://github.com/AntonPieper/ai-skills/blob/main/skills/android/android-development/references/modernization.md" target="_blank" rel="noreferrer">
+          <span>Upgrades</span>
+          <strong>Spot legacy Android risk early</strong>
+          <p>Gradle, AGP, Kotlin, namespace, JDK, and compileSdk modernization checks.</p>
+        </a>
+      </div>
     </section>
   </main>
 
