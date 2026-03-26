@@ -1,0 +1,47 @@
+[
+  {
+    "id": "toolchain-architecture-samples",
+    "repo_label": "architecture-samples",
+    "repo_url": "https://github.com/android/architecture-samples.git",
+    "branch": "main",
+    "ref": "ee66e1526b84c026615df032c705842b7d2a521f",
+    "module_hint": "app",
+    "prompt_file": "toolchain-architecture-samples.prompt.md"
+  },
+  {
+    "id": "interaction-architecture-create-task",
+    "repo_label": "architecture-samples",
+    "repo_url": "https://github.com/android/architecture-samples.git",
+    "branch": "main",
+    "ref": "ee66e1526b84c026615df032c705842b7d2a521f",
+    "module_hint": "app",
+    "prompt_file": "interaction-architecture-create-task.prompt.md"
+  },
+  {
+    "id": "interaction-termux-create-named-session",
+    "repo_label": "termux-app",
+    "repo_url": "https://github.com/termux/termux-app.git",
+    "branch": "master",
+    "ref": "",
+    "module_hint": "app",
+    "prompt_file": "interaction-termux-create-named-session.prompt.md"
+  },
+  {
+    "id": "interaction-aegis-first-run",
+    "repo_label": "Aegis",
+    "repo_url": "https://github.com/beemdevelopment/Aegis.git",
+    "branch": "master",
+    "ref": "",
+    "module_hint": "app",
+    "prompt_file": "interaction-aegis-first-run.prompt.md"
+  },
+  {
+    "id": "modernization-cleanarchitecture",
+    "repo_label": "cleanarchitecture",
+    "repo_url": "https://github.com/android10/Android-CleanArchitecture.git",
+    "branch": "master",
+    "ref": "",
+    "module_hint": "app",
+    "prompt_file": "modernization-cleanarchitecture.prompt.md"
+  }
+]
