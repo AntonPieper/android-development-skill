@@ -48,7 +48,7 @@ validate: node_modules ## Run all static validations
 
 .PHONY: lint
 lint: ## Lint markdown files
-	npx -y markdownlint-cli2 "**/*.md" "#node_modules" "#dist"
+	npx -y markdownlint-cli2 "**/*.md" "#node_modules" "#dist" "#.tmp" "#validation/android-development/prompts"
 
 .PHONY: syntax-check
 syntax-check: ## Syntax-check all scripts
