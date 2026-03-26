@@ -40,7 +40,7 @@ jobs:
     timeout-minutes: 90
     env:
       GH_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
-      MODEL: gpt-5.4-mini
+      MODEL: gpt-5-mini
       INSTALL_SKILL: '1'
       FAIL_ON_SCENARIO_ERROR: '0'
       RUN_ROOT: /tmp/android-development-scenarios/run-${{ github.run_id }}-${{ github.run_attempt }}
