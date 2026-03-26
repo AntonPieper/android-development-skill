@@ -3,34 +3,37 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>android-development | Android CLI Skill with Live Proof</title>
-  <meta name="description" content="A GitHub Copilot skill for Android CLI work with live smoke results, generated scenario showcases, and focused reference docs.">
-  <meta name="theme-color" content="#f4efe4">
+  <title>android-development | Android Tooling Control Room</title>
+  <meta name="description" content="A GitHub Copilot skill for Android CLI work with prompt smoke telemetry, emulator-backed tooling evidence, and focused reference docs.">
+  <meta name="theme-color" content="#091019">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
-  <div class="grain" aria-hidden="true"></div>
+  <div class="page-noise" aria-hidden="true"></div>
+  <div class="page-grid" aria-hidden="true"></div>
+
   <header class="topbar" data-reveal>
     <a class="brand" href="#top">android-development</a>
     <nav class="topnav" aria-label="Primary">
-      <a href="#results">Results</a>
-      <a href="#showcase">Showcase</a>
-      <a href="#docs">Docs</a>
+      <a href="#snapshot">Snapshot</a>
+      <a href="#evidence">Evidence</a>
+      <a href="#proof">Proof</a>
+      <a href="#playbook">Playbook</a>
       <a href="#install">Install</a>
     </nav>
   </header>
 
   <main id="top">
-    <section class="hero shell">
+    <section class="hero shell" id="snapshot">
       <div class="hero-copy" data-reveal>
-        <p class="eyebrow">GitHub Copilot skill for Android teams</p>
-        <h1>Show the proof, not the pitch.</h1>
+        <p class="eyebrow">GitHub Copilot skill for Android CLI work</p>
+        <h1>Run the cheapest Android command that still tells the truth.</h1>
         <p class="lede">
-          This skill helps agents find the right Android project root, pick the smallest next command,
-          keep UI evidence bounded, and modernize old builds without cargo-cult upgrades.
+          The site now treats the skill like an operator surface: prompt smoke telemetry on one side,
+          emulator-backed device evidence on the other, and the exact references that keep Android work bounded.
         </p>
         <div class="hero-actions">
           <button class="button button-primary" type="button" data-copy="npx skills add AntonPieper/ai-skills --skill android-development">Copy install command</button>
@@ -39,29 +42,97 @@
         <p class="microcopy" id="copy-status" aria-live="polite">Installs directly from this repository.</p>
       </div>
 
-      <aside class="snapshot-panel" data-reveal>
-        <p class="panel-label">Latest published smoke snapshot</p>
-        <h2 id="snapshot-title">Loading latest run data...</h2>
-        <p class="snapshot-copy" id="snapshot-copy">The site loads the latest published smoke JSON and generated showcase outputs.</p>
-        <div class="metric-grid" id="hero-metrics"></div>
-        <div class="snapshot-links">
-          <a class="button button-secondary is-small is-hidden" id="report-link" href="#">Open latest report</a>
-          <a class="button button-secondary is-small is-hidden" id="workflow-link" href="#" target="_blank" rel="noreferrer">Open workflow run</a>
-        </div>
+      <aside class="hero-stack" data-reveal>
+        <article class="signal-card signal-card-primary">
+          <p class="panel-label">Published run</p>
+          <h2 id="snapshot-title">Loading latest run data...</h2>
+          <p class="snapshot-copy" id="snapshot-copy">The site loads the latest Pages bundle with smoke telemetry, showcase cards, and tooling captures.</p>
+          <div class="metric-grid" id="hero-metrics"></div>
+          <div class="snapshot-links">
+            <a class="button button-secondary is-small is-hidden" id="report-link" href="#">Open latest report</a>
+            <a class="button button-secondary is-small is-hidden" id="workflow-link" href="#" target="_blank" rel="noreferrer">Open workflow run</a>
+          </div>
+        </article>
+
+        <article class="signal-card signal-card-secondary">
+          <div class="signal-heading">
+            <div>
+              <p class="panel-label">Actual tooling smoke</p>
+              <h3 id="tooling-title">Waiting for device evidence.</h3>
+            </div>
+            <span class="status-pill" id="tooling-status">offline</span>
+          </div>
+          <p class="signal-copy" id="tooling-copy">When available, this panel reflects a real emulator-backed run that builds, installs, captures, and processes Android evidence.</p>
+        </article>
       </aside>
     </section>
 
-    <section class="shell results" id="results">
+    <section class="shell telemetry" data-reveal>
+      <article class="telemetry-card telemetry-card-wide">
+        <p class="panel-label">Why this design changed</p>
+        <h3>Proof is now split into two lanes.</h3>
+        <p>Prompt smoke still matters, but the first screen no longer treats it as the whole story. The new bundle can also ship device screenshots, video, XML/log signals, and the exact commands used to collect them.</p>
+      </article>
+      <article class="telemetry-card">
+        <p class="panel-label">Coverage</p>
+        <div class="proof-list" id="proof-list"></div>
+      </article>
+      <article class="telemetry-card">
+        <p class="panel-label">By repository</p>
+        <div class="repo-list" id="repo-list"></div>
+      </article>
+    </section>
+
+    <section class="shell evidence" id="evidence">
       <div class="section-heading" data-reveal>
-        <p class="eyebrow">Latest validated run</p>
-        <h2>What the skill actually did.</h2>
+        <p class="eyebrow">Emulator-backed evidence</p>
+        <h2>What the Android toolchain actually produced.</h2>
+      </div>
+
+      <div class="evidence-grid">
+        <article class="evidence-stage panel" data-reveal>
+          <div class="panel-headline">
+            <h3>Device capture deck</h3>
+            <p id="evidence-caption">The bundle can surface a processed screenshot, a detail crop, and a short device recording when the tooling smoke publishes them.</p>
+          </div>
+          <div class="evidence-tabs" id="evidence-tabs"></div>
+          <div class="media-frame">
+            <img class="evidence-image is-hidden" id="tooling-image" alt="Processed Android device screenshot">
+            <video class="evidence-video is-hidden" id="tooling-video" controls playsinline muted preload="metadata"></video>
+            <div class="empty-state" id="tooling-empty">No device artifacts are published yet.</div>
+          </div>
+        </article>
+
+        <aside class="evidence-rail" data-reveal>
+          <article class="rail-card">
+            <p class="panel-label">Checks</p>
+            <div class="check-list" id="tooling-checks"></div>
+          </article>
+
+          <article class="rail-card">
+            <p class="panel-label">Signals</p>
+            <div class="signal-list" id="tooling-signals"></div>
+          </article>
+
+          <article class="rail-card">
+            <p class="panel-label">Exact commands</p>
+            <pre class="command-block" id="tooling-commands">No tooling commands published yet.</pre>
+          </article>
+        </aside>
+      </div>
+    </section>
+
+    <section class="shell results" id="proof">
+      <div class="section-heading" data-reveal>
+        <p class="eyebrow">Prompt smoke telemetry</p>
+        <h2>What the skill said across public Android repositories.</h2>
       </div>
 
       <div class="results-grid">
         <article class="panel panel-visual" data-reveal>
           <div class="panel-headline">
             <h3>Smoke matrix</h3>
-            <p>Pass/fail by repo and scenario, generated during the smoke workflow.</p>
+            <p>Pass and fail status for the published prompt matrix.</p>
           </div>
           <img class="visual-image" id="matrix-visual" alt="Latest smoke matrix visualization">
           <div class="matrix-grid" id="matrix-grid"></div>
@@ -69,112 +140,83 @@
 
         <article class="panel panel-visual" data-reveal>
           <div class="panel-headline">
-            <h3>Scenario coverage</h3>
-            <p>How the latest smoke run split across discovery, task selection, modernization, and UI triage.</p>
+            <h3>Scenario balance</h3>
+            <p>Discovery, tasks, modernization, and UI triage in the latest run.</p>
           </div>
-          <img class="visual-image" id="scenario-visual" alt="Scenario coverage visualization">
+          <img class="visual-image" id="scenario-visual" alt="Scenario balance visualization">
           <div class="scenario-list" id="scenario-list"></div>
-        </article>
-
-        <article class="panel panel-proof" data-reveal>
-          <div class="panel-headline">
-            <h3>Coverage and packaging</h3>
-            <p>What is validated around the skill beyond the smoke matrix itself.</p>
-          </div>
-          <div class="proof-list" id="proof-list"></div>
         </article>
       </div>
     </section>
 
-    <section class="shell showcase" id="showcase">
+    <section class="shell showcase" id="playbook">
       <div class="section-heading narrow" data-reveal>
-        <p class="eyebrow">Generated scenario cards</p>
-        <h2>Curated outputs the website can render directly.</h2>
+        <p class="eyebrow">Generated playbook cards</p>
+        <h2>Curated prompt outputs that the site can render directly.</h2>
       </div>
       <div class="showcase-grid" id="showcase-grid"></div>
     </section>
 
-    <section class="shell proof-strip" data-reveal>
-      <div class="strip-card">
-        <p class="panel-label">Acquisition</p>
-        <h3>Smoke matrix</h3>
-        <p>Runs curated prompts across public Android repositories and records per-case outcomes, timing, and logs.</p>
-      </div>
-      <div class="strip-card">
-        <p class="panel-label">Showcase</p>
-        <h3>Copilot-driven site data</h3>
-        <p>Runs a second structured pass that emits JSON-only scenario highlights the site can consume directly.</p>
-      </div>
-      <div class="strip-card">
-        <p class="panel-label">Publishing</p>
-        <h3>Pages bundle</h3>
-        <p>Build-time scripts generate JSON and SVG assets, then GitHub Pages publishes the latest dashboard and docs.</p>
-      </div>
-    </section>
+    <section class="shell docs-install">
+      <section class="docs" data-reveal>
+        <div class="section-heading narrow">
+          <p class="eyebrow">Reference map</p>
+          <h2>Open the next Android reference, not the whole repo.</h2>
+        </div>
+        <div class="doc-grid">
+          <a class="doc-card" href="https://github.com/AntonPieper/ai-skills/blob/main/skills/android/android-development/references/setup-update.md" target="_blank" rel="noreferrer">
+            <span>Setup</span>
+            <strong>setup-update.md</strong>
+            <p>JDK, SDK, platform-tools, emulator packages, and wrapper runtime checks.</p>
+          </a>
+          <a class="doc-card" href="https://github.com/AntonPieper/ai-skills/blob/main/skills/android/android-development/references/nested-repo-discovery.md" target="_blank" rel="noreferrer">
+            <span>Discovery</span>
+            <strong>nested-repo-discovery.md</strong>
+            <p>Cheap root discovery in nested repos and monorepos without broad scans.</p>
+          </a>
+          <a class="doc-card" href="https://github.com/AntonPieper/ai-skills/blob/main/skills/android/android-development/references/build-lint-test.md" target="_blank" rel="noreferrer">
+            <span>Validation</span>
+            <strong>build-lint-test.md</strong>
+            <p>Wrapper-first build, lint, unit test, and connected test paths.</p>
+          </a>
+          <a class="doc-card" href="https://github.com/AntonPieper/ai-skills/blob/main/skills/android/android-development/references/device-emulator-control.md" target="_blank" rel="noreferrer">
+            <span>Targets</span>
+            <strong>device-emulator-control.md</strong>
+            <p>Serial discovery, AVD creation, boot readiness, and safe emulator reset policy.</p>
+          </a>
+          <a class="doc-card" href="https://github.com/AntonPieper/ai-skills/blob/main/skills/android/android-development/references/on-device-interaction-visual-testing.md" target="_blank" rel="noreferrer">
+            <span>UI Triage</span>
+            <strong>on-device-interaction-visual-testing.md</strong>
+            <p>Screenshot-first capture, bounded XML, short video, and tight logcat pulls.</p>
+          </a>
+          <a class="doc-card" href="https://github.com/AntonPieper/ai-skills/blob/main/skills/android/android-development/references/modernization.md" target="_blank" rel="noreferrer">
+            <span>Upgrades</span>
+            <strong>modernization.md</strong>
+            <p>Gradle, AGP, Kotlin, namespace, JDK, and compileSdk compatibility checks.</p>
+          </a>
+        </div>
+      </section>
 
-    <section class="shell docs" id="docs">
-      <div class="section-heading narrow" data-reveal>
-        <p class="eyebrow">Reference map</p>
-        <h2>One short entrypoint, seven focused references.</h2>
-      </div>
-      <div class="doc-grid">
-        <a class="doc-card" data-reveal href="https://github.com/AntonPieper/ai-skills/blob/main/skills/android/android-development/references/setup-update.md" target="_blank" rel="noreferrer">
-          <span>Setup</span>
-          <strong>setup-update.md</strong>
-          <p>Environment checks, SDK layout, package installation, and JDK compatibility.</p>
-        </a>
-        <a class="doc-card" data-reveal href="https://github.com/AntonPieper/ai-skills/blob/main/skills/android/android-development/references/nested-repo-discovery.md" target="_blank" rel="noreferrer">
-          <span>Discovery</span>
-          <strong>nested-repo-discovery.md</strong>
-          <p>Sample catalogs, monorepos, and choosing the smallest real Android root.</p>
-        </a>
-        <a class="doc-card" data-reveal href="https://github.com/AntonPieper/ai-skills/blob/main/skills/android/android-development/references/build-lint-test.md" target="_blank" rel="noreferrer">
-          <span>Validation</span>
-          <strong>build-lint-test.md</strong>
-          <p>Wrapper-first build, lint, unit-test, and connected-test paths.</p>
-        </a>
-        <a class="doc-card" data-reveal href="https://github.com/AntonPieper/ai-skills/blob/main/skills/android/android-development/references/device-emulator-control.md" target="_blank" rel="noreferrer">
-          <span>Targets</span>
-          <strong>device-emulator-control.md</strong>
-          <p>Serial discovery, AVD lifecycle, boot readiness, and reset policy.</p>
-        </a>
-        <a class="doc-card" data-reveal href="https://github.com/AntonPieper/ai-skills/blob/main/skills/android/android-development/references/on-device-interaction-visual-testing.md" target="_blank" rel="noreferrer">
-          <span>UI Triage</span>
-          <strong>on-device-interaction-visual-testing.md</strong>
-          <p>Screenshot-first capture, targeted XML slices, bounded logcat, and evidence bundles.</p>
-        </a>
-        <a class="doc-card" data-reveal href="https://github.com/AntonPieper/ai-skills/blob/main/skills/android/android-development/references/modernization.md" target="_blank" rel="noreferrer">
-          <span>Upgrades</span>
-          <strong>modernization.md</strong>
-          <p>Gradle, AGP, Kotlin, JDK, and compileSdk compatibility guidance.</p>
-        </a>
-        <a class="doc-card" data-reveal href="https://github.com/AntonPieper/ai-skills/blob/main/skills/android/android-development/references/troubleshooting.md" target="_blank" rel="noreferrer">
-          <span>Routing</span>
-          <strong>troubleshooting.md</strong>
-          <p>A short symptom router for when the next reference is not obvious yet.</p>
-        </a>
-      </div>
-    </section>
-
-    <section class="shell install" id="install" data-reveal>
-      <div>
-        <p class="eyebrow">Install</p>
-        <h2>Use it when generic Android advice starts wasting tokens.</h2>
-      </div>
-      <div class="install-board">
-        <article class="install-card">
-          <span>GitHub</span>
-          <pre><code>npx skills add AntonPieper/ai-skills --skill android-development</code></pre>
-        </article>
-        <article class="install-card">
-          <span>List skills</span>
-          <pre><code>npx skills add AntonPieper/ai-skills --list</code></pre>
-        </article>
-        <article class="install-card">
-          <span>Local clone</span>
-          <pre><code>npx skills add "$PWD" --skill android-development -g -a github-copilot -y</code></pre>
-        </article>
-      </div>
+      <section class="install" id="install" data-reveal>
+        <div class="section-heading narrow">
+          <p class="eyebrow">Install</p>
+          <h2>Use it when generic Android advice starts wasting tokens.</h2>
+        </div>
+        <div class="install-board">
+          <article class="install-card">
+            <span>GitHub</span>
+            <pre><code>npx skills add AntonPieper/ai-skills --skill android-development</code></pre>
+          </article>
+          <article class="install-card">
+            <span>List skills</span>
+            <pre><code>npx skills add AntonPieper/ai-skills --list</code></pre>
+          </article>
+          <article class="install-card">
+            <span>Local clone</span>
+            <pre><code>npx skills add "$PWD" --skill android-development -g -a github-copilot -y</code></pre>
+          </article>
+        </div>
+      </section>
     </section>
   </main>
 
