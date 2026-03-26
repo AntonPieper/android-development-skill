@@ -41,7 +41,9 @@ skills/
 validation/
   android-development/
     smoke.sh
+    tooling-smoke.sh
 scripts/
+  process-android-tooling-artifacts.mjs
   validate-skills-catalog.sh
 ```
 
@@ -73,6 +75,14 @@ android-development smoke matrix:
 ./validation/android-development/smoke.sh
 ```
 
+android-development emulator-backed tooling smoke:
+
+```bash
+npm ci
+./validation/android-development/tooling-smoke.sh
+node ./scripts/process-android-tooling-artifacts.mjs "$RUN_ROOT"
+```
+
 Useful overrides:
 
 ```bash
@@ -86,8 +96,8 @@ Skill eval assets for `android-development` live in `validation/android-developm
 - `evals.json` for output-quality eval cases and assertions.
 - `trigger-queries.train.json` and `trigger-queries.validation.json` for description-trigger tuning.
 
-The scheduled smoke workflow writes a GitHub Actions job summary and uploads a report artifact with Markdown, JSON, and HTML renderings of the smoke matrix.
+The scheduled smoke workflow writes a GitHub Actions job summary and uploads a report artifact with Markdown, JSON, HTML, processed screenshots, cropped WebP stills, a short device recording, and the raw Android evidence bundle.
 
 The GitHub Pages workflow publishes the static skill site from `site/` using GitHub Actions.
 
-The smoke workflow also acquires a small Copilot-driven showcase dataset and builds a Pages bundle with live smoke metrics, generated visual assets, and curated scenario outputs for the website.
+The smoke workflow now combines three data lanes for the website: prompt smoke telemetry, a Copilot-driven showcase dataset, and an emulator-backed Android tooling smoke that builds a public sample app, captures screenshots and video, processes those assets, and emits a richer Pages bundle for the site.

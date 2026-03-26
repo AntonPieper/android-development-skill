@@ -131,82 +131,6 @@ function buildMatrix(rows) {
   return { repos, scenarios, cells };
 }
 
-function buildMatrixSvg(data) {
-  const cellWidth = 122;
-  const cellHeight = 72;
-  const leftMargin = 170;
-  const topMargin = 96;
-  const width = leftMargin + (data.matrix.scenarios.length * cellWidth) + 40;
-  const height = topMargin + (data.matrix.repos.length * cellHeight) + 36;
-
-  const cellColor = {
-    PASS: '#d6f5df',
-    FAIL: '#ffd8c2',
-    MISSING: '#efe7d8',
-  };
-
-  const rowsSvg = data.matrix.repos.map((repo, rowIndex) => {
-    const y = topMargin + (rowIndex * cellHeight);
-    const label = `<text x="24" y="${y + 42}" font-family="IBM Plex Mono, monospace" font-size="14" fill="#2b241d">${escapeHtml(repo)}</text>`;
-    const cells = data.matrix.scenarios.map((scenario, colIndex) => {
-      const x = leftMargin + (colIndex * cellWidth);
-      const cell = data.matrix.cells.find((item) => item.repo === repo && item.scenario === scenario);
-      const result = cell?.result ?? 'MISSING';
-      const detail = result === 'FAIL' ? (cell?.exit_code || '1') : (cell?.session_time || 'ok');
-      return `
-        <g>
-          <rect x="${x}" y="${y}" width="110" height="56" rx="18" fill="${cellColor[result]}" stroke="rgba(21,19,17,0.08)" />
-          <text x="${x + 18}" y="${y + 24}" font-family="IBM Plex Mono, monospace" font-size="13" fill="#151311">${escapeHtml(result)}</text>
-          <text x="${x + 18}" y="${y + 42}" font-family="IBM Plex Sans, sans-serif" font-size="12" fill="rgba(21,19,17,0.68)">${escapeHtml(detail)}</text>
-        </g>`;
-    }).join('');
-    return `${label}${cells}`;
-  }).join('');
-
-  const headersSvg = data.matrix.scenarios.map((scenario, index) => {
-    const x = leftMargin + (index * cellWidth) + 18;
-    return `<text x="${x}" y="54" font-family="IBM Plex Mono, monospace" font-size="13" fill="#2b241d">${escapeHtml(scenarioNames[scenario] || scenario)}</text>`;
-  }).join('');
-
-  return `<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" fill="none">
-  <rect width="${width}" height="${height}" rx="28" fill="#fffaf4" />
-  <text x="24" y="34" font-family="Fraunces, serif" font-size="24" fill="#151311">Latest smoke matrix</text>
-  <text x="24" y="58" font-family="IBM Plex Sans, sans-serif" font-size="14" fill="rgba(21,19,17,0.68)">${escapeHtml(`${data.headline.total_cases} cases · ${data.headline.passed} passed · ${data.headline.failed} failed`)}</text>
-  ${headersSvg}
-  ${rowsSvg}
-</svg>`;
-}
-
-function buildScenarioBarsSvg(data) {
-  const width = 760;
-  const height = 280;
-  const innerWidth = 420;
-  const maxTotal = Math.max(1, ...data.scenario_stats.map((item) => item.total));
-
-  const rowsSvg = data.scenario_stats.map((item, index) => {
-    const y = 46 + (index * 54);
-    const passWidth = (item.passed / maxTotal) * innerWidth;
-    const failWidth = (item.failed / maxTotal) * innerWidth;
-    return `
-      <g>
-        <text x="24" y="${y + 20}" font-family="IBM Plex Mono, monospace" font-size="13" fill="#2b241d">${escapeHtml(scenarioNames[item.scenario] || item.scenario)}</text>
-        <rect x="248" y="${y}" width="${innerWidth}" height="24" rx="12" fill="#efe7d8" />
-        <rect x="248" y="${y}" width="${passWidth}" height="24" rx="12" fill="#1f7a8c" />
-        <rect x="${248 + passWidth}" y="${y}" width="${failWidth}" height="24" rx="12" fill="#ff6b2c" />
-        <text x="686" y="${y + 17}" font-family="IBM Plex Sans, sans-serif" font-size="12" fill="rgba(21,19,17,0.72)">${item.passed}/${item.total} passed</text>
-      </g>`;
-  }).join('');
-
-  return `<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" fill="none">
-  <rect width="${width}" height="${height}" rx="28" fill="#f6f0e4" />
-  <text x="24" y="34" font-family="Fraunces, serif" font-size="24" fill="#151311">Scenario coverage</text>
-  <text x="24" y="58" font-family="IBM Plex Sans, sans-serif" font-size="14" fill="rgba(21,19,17,0.68)">Pass or fail counts for each scenario in the latest smoke run.</text>
-  ${rowsSvg}
-</svg>`;
-}
-
 function buildRepoStats(rows) {
   return [...new Set(rows.map((row) => row.repo))].map((repo) => {
     const repoRows = rows.filter((row) => row.repo === repo);
@@ -235,6 +159,86 @@ function buildScenarioStats(rows) {
     });
 }
 
+function buildMatrixSvg(data) {
+  const cellWidth = 128;
+  const cellHeight = 74;
+  const leftMargin = 180;
+  const topMargin = 96;
+  const width = leftMargin + (data.matrix.scenarios.length * cellWidth) + 48;
+  const height = topMargin + (data.matrix.repos.length * cellHeight) + 44;
+
+  const cellColor = {
+    PASS: '#7effb2',
+    FAIL: '#ff7a59',
+    MISSING: '#3b4754',
+  };
+
+  const rowsSvg = data.matrix.repos.map((repo, rowIndex) => {
+    const y = topMargin + (rowIndex * cellHeight);
+    const label = `<text x="30" y="${y + 42}" font-family="IBM Plex Mono, monospace" font-size="14" fill="#b9c9d8">${escapeHtml(repo)}</text>`;
+    const cells = data.matrix.scenarios.map((scenario, colIndex) => {
+      const x = leftMargin + (colIndex * cellWidth);
+      const cell = data.matrix.cells.find((item) => item.repo === repo && item.scenario === scenario);
+      const result = cell?.result ?? 'MISSING';
+      const detail = result === 'FAIL' ? (cell?.exit_code || '1') : (cell?.session_time || 'ok');
+      const fill = cellColor[result] ?? cellColor.MISSING;
+      const textFill = result === 'MISSING' ? '#d5e2ee' : '#091019';
+      return `
+        <g>
+          <rect x="${x}" y="${y}" width="114" height="56" rx="18" fill="${fill}" opacity="${result === 'MISSING' ? '0.88' : '1'}" />
+          <text x="${x + 16}" y="${y + 24}" font-family="IBM Plex Mono, monospace" font-size="13" fill="${textFill}">${escapeHtml(result)}</text>
+          <text x="${x + 16}" y="${y + 43}" font-family="IBM Plex Sans, sans-serif" font-size="12" fill="${textFill}">${escapeHtml(detail)}</text>
+        </g>`;
+    }).join('');
+    return `${label}${cells}`;
+  }).join('');
+
+  const headersSvg = data.matrix.scenarios.map((scenario, index) => {
+    const x = leftMargin + (index * cellWidth) + 16;
+    return `<text x="${x}" y="58" font-family="IBM Plex Mono, monospace" font-size="12" fill="#b9c9d8">${escapeHtml(scenarioNames[scenario] || scenario)}</text>`;
+  }).join('');
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" fill="none">
+  <rect width="${width}" height="${height}" rx="30" fill="#111922" />
+  <rect x="1" y="1" width="${width - 2}" height="${height - 2}" rx="29" stroke="#273645" />
+  <text x="30" y="38" font-family="Bricolage Grotesque, sans-serif" font-size="24" fill="#f4f7fb">Prompt smoke matrix</text>
+  <text x="30" y="62" font-family="IBM Plex Sans, sans-serif" font-size="14" fill="#8ea5bb">${escapeHtml(`${data.headline.total_cases} cases · ${data.headline.passed} passed · ${data.headline.failed} failed`)}</text>
+  ${headersSvg}
+  ${rowsSvg}
+</svg>`;
+}
+
+function buildScenarioBarsSvg(data) {
+  const width = 760;
+  const height = 280;
+  const innerWidth = 408;
+  const maxTotal = Math.max(1, ...data.scenario_stats.map((item) => item.total));
+
+  const rowsSvg = data.scenario_stats.map((item, index) => {
+    const y = 48 + (index * 54);
+    const passWidth = (item.passed / maxTotal) * innerWidth;
+    const failWidth = (item.failed / maxTotal) * innerWidth;
+    return `
+      <g>
+        <text x="30" y="${y + 19}" font-family="IBM Plex Mono, monospace" font-size="12" fill="#b9c9d8">${escapeHtml(scenarioNames[item.scenario] || item.scenario)}</text>
+        <rect x="264" y="${y}" width="${innerWidth}" height="24" rx="12" fill="#253340" />
+        <rect x="264" y="${y}" width="${passWidth}" height="24" rx="12" fill="#7effb2" />
+        <rect x="${264 + passWidth}" y="${y}" width="${failWidth}" height="24" rx="12" fill="#ff7a59" />
+        <text x="690" y="${y + 17}" font-family="IBM Plex Sans, sans-serif" font-size="12" fill="#dbe6ee">${item.passed}/${item.total} passed</text>
+      </g>`;
+  }).join('');
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" fill="none">
+  <rect width="${width}" height="${height}" rx="30" fill="#111922" />
+  <rect x="1" y="1" width="${width - 2}" height="${height - 2}" rx="29" stroke="#273645" />
+  <text x="30" y="38" font-family="Bricolage Grotesque, sans-serif" font-size="24" fill="#f4f7fb">Scenario balance</text>
+  <text x="30" y="62" font-family="IBM Plex Sans, sans-serif" font-size="14" fill="#8ea5bb">Pass and fail counts for each smoke prompt scenario.</text>
+  ${rowsSvg}
+</svg>`;
+}
+
 async function loadShowcase(runRoot) {
   const rawDir = path.join(runRoot, 'showcase', 'raw');
   if (!(await fileExists(rawDir))) {
@@ -250,6 +254,7 @@ async function loadShowcase(runRoot) {
     if (!jsonText) {
       continue;
     }
+
     try {
       const parsed = JSON.parse(jsonText);
       showcase.push({
@@ -271,6 +276,34 @@ async function loadShowcase(runRoot) {
   return showcase.sort((left, right) => scenarioOrder.indexOf(left.scenario) - scenarioOrder.indexOf(right.scenario));
 }
 
+function mapToolingMediaPaths(toolingSummary) {
+  if (!toolingSummary?.media) {
+    return toolingSummary;
+  }
+
+  const media = Object.fromEntries(
+    Object.entries(toolingSummary.media).map(([key, value]) => [
+      key,
+      value ? `./generated/tooling/${path.basename(value)}` : null,
+    ]),
+  );
+
+  return {
+    ...toolingSummary,
+    media,
+  };
+}
+
+async function loadToolingSummary(runRoot) {
+  const summaryPath = path.join(runRoot, 'tooling', 'summary.json');
+  if (!(await fileExists(summaryPath))) {
+    return null;
+  }
+
+  const summary = JSON.parse(await fs.readFile(summaryPath, 'utf8'));
+  return mapToolingMediaPaths(summary);
+}
+
 async function buildDataFromRunRoot(runRoot) {
   const summaryJsonPath = path.join(runRoot, 'report', 'summary.json');
   if (!(await fileExists(summaryJsonPath))) {
@@ -286,6 +319,7 @@ async function buildDataFromRunRoot(runRoot) {
   const totalInTokens = rows.reduce((sum, row) => sum + parseIntLike(row.in_tokens), 0);
   const totalOutTokens = rows.reduce((sum, row) => sum + parseIntLike(row.out_tokens), 0);
   const reportPath = path.join(runRoot, 'report', 'index.html');
+  const tooling = await loadToolingSummary(runRoot);
 
   return {
     generated_at: new Date().toISOString(),
@@ -308,6 +342,7 @@ async function buildDataFromRunRoot(runRoot) {
     scenario_stats: scenarioStats,
     matrix: buildMatrix(rows),
     showcase,
+    tooling,
     links: {
       report: (await fileExists(reportPath)) ? './reports/latest/index.html' : null,
       workflow_run: process.env.GITHUB_SERVER_URL && process.env.GITHUB_REPOSITORY && process.env.GITHUB_RUN_ID
@@ -325,7 +360,7 @@ async function fetchJson(url) {
   try {
     const response = await fetch(url, {
       headers: {
-        'Accept': 'application/json',
+        Accept: 'application/json',
       },
     });
     if (!response.ok) {
@@ -345,7 +380,7 @@ async function fetchText(url) {
   try {
     const response = await fetch(url, {
       headers: {
-        'Accept': 'text/html, text/plain;q=0.9,*/*;q=0.8',
+        Accept: 'text/html, text/plain;q=0.9,*/*;q=0.8',
       },
     });
     if (!response.ok) {
@@ -354,6 +389,38 @@ async function fetchText(url) {
     return await response.text();
   } catch {
     return null;
+  }
+}
+
+async function copyLiveToolingAssets(siteData, liveUrl, outputBase) {
+  if (!siteData.tooling?.media || !liveUrl) {
+    return;
+  }
+
+  const siteRootUrl = new URL('../', liveUrl);
+  const targetDir = path.join(outputBase, 'generated', 'tooling');
+  await fs.mkdir(targetDir, { recursive: true });
+
+  const seen = new Set();
+
+  for (const assetPath of Object.values(siteData.tooling.media)) {
+    if (!assetPath || seen.has(assetPath)) {
+      continue;
+    }
+    seen.add(assetPath);
+
+    try {
+      const assetUrl = new URL(assetPath.replace(/^\.\//, ''), siteRootUrl);
+      const response = await fetch(assetUrl);
+      if (!response.ok) {
+        continue;
+      }
+
+      const buffer = Buffer.from(await response.arrayBuffer());
+      await fs.writeFile(path.join(targetDir, path.basename(assetPath)), buffer);
+    } catch {
+      // Keep the rest of the site build working even if one cached asset is unavailable.
+    }
   }
 }
 
@@ -368,16 +435,17 @@ async function buildFallbackData() {
       passed: 0,
       failed: 0,
       repos_covered: 0,
-      scenarios_covered: 4,
+      scenarios_covered: 0,
       pass_rate: 0,
       total_input_tokens: 0,
       total_output_tokens: 0,
     },
     coverage,
     repo_stats: [],
-    scenario_stats: scenarioOrder.map((scenario) => ({ scenario, total: 0, passed: 0, failed: 0 })),
-    matrix: { repos: [], scenarios: scenarioOrder, cells: [] },
+    scenario_stats: [],
+    matrix: { repos: [], scenarios: [], cells: [] },
     showcase: [],
+    tooling: null,
     links: {
       report: null,
       workflow_run: null,
@@ -409,6 +477,21 @@ async function loadSiteData(runRoot, liveUrl) {
   return { data: await buildFallbackData(), reportHtml: null };
 }
 
+async function copyToolingAssets(runRoot, outputBase) {
+  if (!runRoot) {
+    return;
+  }
+
+  const sourceDir = path.join(runRoot, 'tooling', 'processed');
+  if (!(await fileExists(sourceDir))) {
+    return;
+  }
+
+  const targetDir = path.join(outputBase, 'generated', 'tooling');
+  await fs.mkdir(targetDir, { recursive: true });
+  await fs.cp(sourceDir, targetDir, { recursive: true });
+}
+
 const { data: siteData, reportHtml } = await loadSiteData(runRootArg, liveDataUrl);
 
 await fs.rm(outputDir, { recursive: true, force: true });
@@ -421,6 +504,11 @@ const reportOutputDir = path.join(outputDir, 'reports', 'latest');
 
 await fs.mkdir(dataDir, { recursive: true });
 await fs.mkdir(generatedDir, { recursive: true });
+await copyToolingAssets(runRootArg, outputDir);
+
+if (!runRootArg) {
+  await copyLiveToolingAssets(siteData, liveDataUrl, outputDir);
+}
 
 siteData.visuals = {
   matrix: './generated/matrix.svg',

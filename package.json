@@ -1,0 +1,12 @@
+{
+  "name": "ai-skills",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:site": "node ./scripts/build-pages-site.mjs ./dist/site",
+    "process:android-tooling": "node ./scripts/process-android-tooling-artifacts.mjs"
+  },
+  "devDependencies": {
+    "sharp": "^0.34.5"
+  }
+}
