@@ -92,7 +92,7 @@ async function loadLocalScenarios(root) {
     await fs.cp(dir, outDir, { recursive: true, force: true });
 
     const base = `./reports/latest/scenarios/${entry.name}`;
-    scenarios.push(buildScenario(entry.name, result, media, reportMd, base));
+    scenarios.push(await buildScenario(entry.name, result, media, reportMd, base));
   }
 
   return scenarios.sort((a, b) => a.title.localeCompare(b.title));
@@ -144,7 +144,7 @@ async function loadPublishedScenarios(url) {
     }));
 
     const base = `./reports/latest/scenarios/${slug}`;
-    scenarios.push(buildScenario(slug, result, media, reportMd, base));
+    scenarios.push(await buildScenario(slug, result, media, reportMd, base));
   }
 
   return { generatedAt: published.generatedAt || new Date().toISOString(), scenarios: scenarios.sort((a, b) => a.title.localeCompare(b.title)) };
@@ -258,9 +258,7 @@ if (runRoot && (await exists(path.join(runRoot, 'skill-package.txt')))) {
 // Load scenarios
 const localScenarios = await loadLocalScenarios(runRoot);
 const published = localScenarios.length === 0 ? await loadPublishedScenarios(liveDataUrl) : null;
-const scenarioList = localScenarios.length > 0 ? localScenarios : (published?.scenarios || []);
-// buildScenario returns promises, resolve them
-const scenarios = await Promise.all(scenarioList);
+const scenarios = localScenarios.length > 0 ? localScenarios : (published?.scenarios || []);
 
 const payload = {
   generatedAt: published?.generatedAt || new Date().toISOString(),
