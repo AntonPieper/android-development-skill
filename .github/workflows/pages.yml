@@ -14,7 +14,10 @@ on:
       - scripts/build-pages-site.mjs
       - scripts/process-android-scenario-artifacts.mjs
       - skills/android/android-development/**
+      - validation/android-development/smoke.py
       - validation/android-development/smoke.sh
+      - validation/android-development/scenarios.json
+      - validation/android-development/prompts/**
       - Makefile
       - README.md
       - .github/workflows/android-development-smoke.yml
@@ -27,7 +30,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: pages
+  group: github-pages-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
